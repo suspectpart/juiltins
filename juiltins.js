@@ -15,6 +15,12 @@ class ZeroDivisionError extends Error {
   }
 }
 
+class TypeError extends Error {
+  constructor(message) {
+    super(`TypeError: ${message}`)
+  }
+}
+
 function abs(n) {
   return Math.abs(n);
 }
@@ -47,5 +53,30 @@ function bool(value) {
   return !!value;
 }
 
+/**
+ * Do not be suprised - ord() yields different results in JavaScript than
+ * in Python as JavaScript stores strings as UTF-16 and Python as UTF-8.
+ */
+function ord(char) {
+  if (arguments.length !== 1) {
+    throw new TypeError(`ord() takes exactly one argument (${arguments.length} given)`);
+  }
 
-module.exports = { abs, all, any, bool, dir, divmod, ZeroDivisionError };
+  if (typeof char !== 'string') {
+    throw new TypeError('ord() expected string of length 1, but dict found');
+  }
+
+  // We can not use char.length as JavaScript may report a length > 1 
+  // if a Unicode character is made up of more than one code unit.
+  // Spreading string characters into an Array helps counting them properly.
+  const length = [...char].length;
+
+  if (length !== 1){
+    throw new TypeError(`ord() expected a character, but string of length ${length} found`);
+  } 
+
+  return char.charCodeAt(0);
+}
+
+
+module.exports = { abs, all, any, bool, dir, divmod, ord, ZeroDivisionError };

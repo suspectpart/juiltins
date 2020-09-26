@@ -4,7 +4,8 @@ const {
   any,
   bool,
   divmod,
-  ZeroDivisionError
+  ZeroDivisionError,
+  ord
 } = require("./juiltins");
 
 describe('juiltins', () => {
@@ -93,7 +94,7 @@ describe('juiltins', () => {
       // Assert
       expect(quotient).toEqual(-12.0);
       expect(remainder).toEqual(9.86999999999999);
-    })
+    });
   });
 
   describe('bool', () => {
@@ -117,4 +118,34 @@ describe('juiltins', () => {
         });
       });
   });
+
+  describe('ord', () => {
+    it('throws TypeError if argument is not a string', () => {
+      expect(() => ord({})).toThrow('TypeError: ord() expected string of length 1, but dict found');
+    });
+
+    it('throws TypeError if argument is a too-long string', () => {
+      expect(() => ord('abcdefgh')).toThrow('TypeError: ord() expected a character, but string of length 8 found');
+    });
+
+    it('throws TypeError if argument is missing', () => {
+      expect(() => ord()).toThrow('TypeError: ord() takes exactly one argument (0 given)');
+    });
+
+    it('throws TypeError if too many arguments', () => {
+      expect(() => ord("a", "b", "c")).toThrow('TypeError: ord() takes exactly one argument (3 given)');
+    });
+
+    it('determines char code of ascii characters', () => {
+      expect(ord("a")).toEqual(97);
+    })
+
+    it('determines char code of escape characters', () => {
+      expect(ord("\n")).toEqual(10);
+    });
+
+    it('determines char code of emojis', () => {
+      expect(ord("💩")).toEqual(55357);
+    });
+  })
 });

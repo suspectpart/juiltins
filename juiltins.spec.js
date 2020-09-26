@@ -122,7 +122,7 @@ describe('juiltins', () => {
 
   describe('ord', () => {
     it('throws TypeError if argument is not a string', () => {
-      expect(() => ord({})).toThrow(new TypeError('ord() expected string of length 1, but dict found'));
+      expect(() => ord({})).toThrow(new TypeError('ord() expected string of length 1, but object found'));
     });
 
     it('throws TypeError if argument is a too-long string', () => {

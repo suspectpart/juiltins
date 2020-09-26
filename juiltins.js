@@ -21,6 +21,7 @@ class TypeError extends Error {
   }
 }
 
+// TODO: return the magnitude if n is a complex number
 function abs(n) {
   return Math.abs(n);
 }
@@ -59,7 +60,7 @@ function ord(char) {
   }
 
   if (typeof char !== 'string') {
-    throw new TypeError('ord() expected string of length 1, but dict found');
+    throw new TypeError(`ord() expected string of length 1, but ${typeof char} found`);
   }
 
   // We can not use char.length as JavaScript may report a length > 1 

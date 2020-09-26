@@ -263,7 +263,7 @@ describe('juiltins', () => {
       expect([...actual]).toEqual(expected);
     });
 
-    it('can handle generators and iterators', () => {
+    it('zips generators, iterators and other iterable stuff', () => {
       // Arrange
       class Iterator {
         [Symbol.iterator] = function* () {
@@ -279,10 +279,20 @@ describe('juiltins', () => {
         yield "c";
       };
 
-      const expected = [[1, "a"], [2, "b"], [3, "c"]];
+      const map = new Map([
+        ["k1", Infinity],
+        ["k2", NaN],
+        ["k3", null],
+      ])
+
+      const expected = [
+        [1, "a", ["k1", Infinity]], 
+        [2, "b", ["k2", NaN]], 
+        [3, "c", ["k3", null]]
+      ];
 
       // Act
-      const actual = zip(new Iterator(), generator());
+      const actual = zip(new Iterator(), generator(), map);
       
       // Assert
       expect([...actual]).toEqual(expected);

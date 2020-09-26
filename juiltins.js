@@ -95,12 +95,17 @@ function hex(n) {
 
 function* zip(...iterables) {
   if (!iterables.length) return;
-  iterables = iterables.map(iterable => [...iterable]);
 
-  let shortest =  Math.min(...iterables.map(i => i.length));
+  const iterators = iterables.map(iterable => iterable[Symbol.iterator]());
 
-  while(shortest--) {
-    yield iterables.map(iterable => iterable.shift());
+  while(true) {
+    let next = iterators.map(iter => iter.next());
+    
+    if(next.some(({ done }) => done)) {
+      break;
+    }
+
+    yield next.map(({ value }) => value);
   }
 }
 

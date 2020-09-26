@@ -11,13 +11,13 @@ function mod(a, b) {
 
 class ZeroDivisionError extends Error {
   constructor() {
-    super('ZeroDivisionError: integer division or modulo by zero');
+    super('integer division or modulo by zero');
   }
 }
 
 class TypeError extends Error {
   constructor(message) {
-    super(`TypeError: ${message}`)
+    super(message)
   }
 }
 

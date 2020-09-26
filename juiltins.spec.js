@@ -122,19 +122,19 @@ describe('juiltins', () => {
 
   describe('ord', () => {
     it('throws TypeError if argument is not a string', () => {
-      expect(() => ord({})).toThrow('TypeError: ord() expected string of length 1, but dict found');
+      expect(() => ord({})).toThrow(new TypeError('ord() expected string of length 1, but dict found'));
     });
 
     it('throws TypeError if argument is a too-long string', () => {
-      expect(() => ord('abcdefgh')).toThrow('TypeError: ord() expected a character, but string of length 8 found');
+      expect(() => ord('abcdefgh')).toThrow(new TypeError('ord() expected a character, but string of length 8 found'));
     });
 
     it('throws TypeError if argument is missing', () => {
-      expect(() => ord()).toThrow('TypeError: ord() takes exactly one argument (0 given)');
+      expect(() => ord()).toThrow(new TypeError('ord() takes exactly one argument (0 given)'));
     });
 
     it('throws TypeError if too many arguments', () => {
-      expect(() => ord("a", "b", "c")).toThrow('TypeError: ord() takes exactly one argument (3 given)');
+      expect(() => ord("a", "b", "c")).toThrow(new TypeError('ord() takes exactly one argument (3 given)'));
     });
 
     it('ord("a") is 97 (ASCII)', () => {
@@ -178,7 +178,7 @@ describe('juiltins', () => {
     });
 
     it('throws TypeError if value is neither a number nor has an __index__ on object', () => {
-      expect(() => hex(true)).toThrow(new TypeError("'boolean' object cannot be interpreted as an integer").toString());
+      expect(() => hex(true)).toThrow(new TypeError("'boolean' object cannot be interpreted as an integer"));
     });
   });
 });

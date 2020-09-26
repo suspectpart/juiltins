@@ -95,6 +95,7 @@ function hex(n) {
 
 function* zip(...iterables) {
   if (!iterables.length) return;
+  iterables = iterables.map(iterable => [...iterable]);
 
   let shortest =  Math.min(...iterables.map(i => i.length));
 

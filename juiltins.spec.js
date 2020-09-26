@@ -247,5 +247,45 @@ describe('juiltins', () => {
       // Assert
       expect([...actual]).toEqual(expected);
     });
+
+    it('zips up to the shortest of all iterables', () => {
+      // Arrange
+      const left = [1, 2, 3, 4];
+      const middle = ["a", "b", "c"]
+      const right = [null, undefined, true, false, Infinity];
+
+      const expected = [[1, "a", null], [2, "b", undefined], [3, "c", true]];
+
+      // Act
+      const actual = zip(left, middle, right);
+      
+      // Assert
+      expect([...actual]).toEqual(expected);
+    });
+
+    it('can handle generators and iterators', () => {
+      // Arrange
+      class Iterator {
+        [Symbol.iterator] = function* () {
+          yield 1;
+          yield 2;
+          yield 3;
+        }
+      }
+
+      const generator = function* () {
+        yield "a";
+        yield "b";
+        yield "c";
+      };
+
+      const expected = [[1, "a"], [2, "b"], [3, "c"]];
+
+      // Act
+      const actual = zip(new Iterator(), generator());
+      
+      // Assert
+      expect([...actual]).toEqual(expected);
+    });
   });
 });

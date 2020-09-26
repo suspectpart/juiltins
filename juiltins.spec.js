@@ -4,8 +4,9 @@ const {
   any,
   bool,
   divmod,
+  hex,
+  ord,
   ZeroDivisionError,
-  ord
 } = require("./juiltins");
 
 describe('juiltins', () => {
@@ -136,16 +137,48 @@ describe('juiltins', () => {
       expect(() => ord("a", "b", "c")).toThrow('TypeError: ord() takes exactly one argument (3 given)');
     });
 
-    it('determines char code of ascii characters', () => {
+    it('ord("a") is 97 (ASCII)', () => {
       expect(ord("a")).toEqual(97);
     })
 
-    it('determines char code of escape characters', () => {
+    it('ord("\n") is 10 (escape sequence)', () => {
       expect(ord("\n")).toEqual(10);
     });
 
-    it('determines char code of emojis', () => {
+    it('ord("💩") is 128169 (Emojis, Unicode)', () => {
       expect(ord("💩")).toEqual(128169);
     });
-  })
+  });
+
+  describe('hex', () => {
+    [
+      {number: 0, expected: '0x0'},
+      {number: 255, expected: '0xff'},
+      {number: -42, expected: '-0x2a'},
+      {number: 2 ** 32 + 1, expected: '0x100000001'},
+    ].forEach(({ number, expected }) => {
+      it(`hex(${number}) is ${expected}`, () => {
+        expect(hex(number)).toEqual(expected);
+      });
+    });
+
+    it('tries to call __index__ on objects', () => {
+      // Arrange
+      const object = {
+        __index__: () => 32
+      };
+
+      const expected = '0x20';
+
+      // Act
+      const actual = hex(object);
+
+      // Assert
+      expect(actual).toEqual(expected);
+    });
+
+    it('throws TypeError if value is neither a number nor has an __index__ on object', () => {
+      expect(() => hex(true)).toThrow(new TypeError("'boolean' object cannot be interpreted as an integer").toString());
+    });
+  });
 });

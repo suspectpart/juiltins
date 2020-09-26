@@ -74,5 +74,26 @@ function ord(char) {
   return char.codePointAt(0);
 }
 
+function hex(n) {
+  if (arguments.length !== 1) {
+    throw new TypeError(`hex() takes exactly one argument (${arguments.length} given)`);
+  }
 
-module.exports = { abs, all, any, bool, dir, divmod, ord, ZeroDivisionError };
+  const type = typeof n;
+
+  if (type !== "number") {
+    if (n.__index__ && typeof n.__index__ === 'function') {
+      n = n.__index__();
+    } else {
+      throw new TypeError(`'${type}' object cannot be interpreted as an integer`);
+    }
+  }
+
+  return `${n < 0 ? '-' : ''}0x${n.toString(16).slice(n < 0)}`;
+}
+
+
+module.exports = { 
+  abs, all, any, bool, dir, divmod, 
+  hex, ord, ZeroDivisionError 
+};

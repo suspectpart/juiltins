@@ -1,0 +1,17 @@
+{
+  "name": "juiltins",
+  "version": "1.0.0",
+  "description": "Python Built-Ins for JavaScript",
+  "main": "juiltins.js",
+  "scripts": {
+    "test": "jest juiltins.spec.js"
+  },
+  "keywords": [
+    "Python"
+  ],
+  "author": "Horst Schneider",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^26.4.2"
+  }
+}

@@ -93,8 +93,17 @@ function hex(n) {
   return `${n < 0 ? '-' : ''}0x${n.toString(16).slice(n < 0)}`;
 }
 
+function* zip(...iterables) {
+  if (!iterables.length) return;
+
+  let shortest =  Math.min(...iterables.map(i => i.length));
+
+  while(shortest--) {
+    yield iterables.map(iterable => iterable.shift());
+  }
+}
 
 module.exports = { 
   abs, all, any, bool, dir, divmod, 
-  hex, ord, ZeroDivisionError 
+  hex, ord, zip, ZeroDivisionError 
 };

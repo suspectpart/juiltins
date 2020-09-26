@@ -6,6 +6,7 @@ const {
   divmod,
   hex,
   ord,
+  zip,
   ZeroDivisionError,
 } = require("./juiltins");
 
@@ -179,6 +180,72 @@ describe('juiltins', () => {
 
     it('throws TypeError if value is neither a number nor has an __index__ on object', () => {
       expect(() => hex(true)).toThrow(new TypeError("'boolean' object cannot be interpreted as an integer"));
+    });
+  });
+
+  describe('zip', () => {
+    it('zips empty things', () => {
+      expect([...zip()]).toEqual([]);
+      expect([...zip([])]).toEqual([]);
+      expect([...zip([], [])]).toEqual([]);
+    });
+
+    it('zips a single iterable', () => {
+      expect([...zip([1, 2])]).toEqual([[1], [2]]);
+    });
+
+    it('zips two iterables of the same length', () => {
+      // Arrange
+      const left = [1, 2, 3];
+      const right = ["a", "b", "c"];
+      const expected = [[1, "a"], [2, "b"], [3, "c"]];
+
+      // Act
+      const actual = zip(left, right);
+      
+      // Assert
+      expect([...actual]).toEqual(expected);
+    });
+
+    it('only zips up to the length of the left iterable', () => {
+      // Arrange
+      const left = [1, 2];
+      const right = ["a", "b", "c"];
+      const expected = [[1, "a"], [2, "b"]];
+
+      // Act
+      const actual = zip(left, right);
+      
+      // Assert
+      expect([...actual]).toEqual(expected);
+    });
+
+    it('only zips up to the length of the right iterable', () => {
+      // Arrange
+      const left = [1, 2, 3];
+      const right = ["a", "b"];
+      const expected = [[1, "a"], [2, "b"]];
+
+      // Act
+      const actual = zip(left, right);
+      
+      // Assert
+      expect([...actual]).toEqual(expected);
+    });
+
+    it('zips up to the shortest of all iterables', () => {
+      // Arrange
+      const left = [1, 2, 3, 4];
+      const middle = ["a", "b", "c"]
+      const right = [null, undefined, true, false, Infinity];
+
+      const expected = [[1, "a", null], [2, "b", undefined], [3, "c", true]];
+
+      // Act
+      const actual = zip(left, middle, right);
+      
+      // Assert
+      expect([...actual]).toEqual(expected);
     });
   });
 });

@@ -31,6 +31,7 @@ function dir(obj) {
   console.dir(obj);
 }
 
+// TODO: what about complex?
 function divmod(a, b) {
   if (b === 0) {
     throw new ZeroDivisionError();
@@ -42,5 +43,9 @@ function divmod(a, b) {
   return [ quotient, remainder ];
 }
 
+function bool(value) {
+  return !!value;
+}
 
-module.exports = { abs, all, any, dir, divmod, ZeroDivisionError };
+
+module.exports = { abs, all, any, bool, dir, divmod, ZeroDivisionError };

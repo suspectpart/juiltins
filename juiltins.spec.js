@@ -2,6 +2,7 @@ const {
   abs,
   all,
   any,
+  bool,
   divmod,
   ZeroDivisionError
 } = require("./juiltins");
@@ -93,5 +94,27 @@ describe('juiltins', () => {
       expect(quotient).toEqual(-12.0);
       expect(remainder).toEqual(9.86999999999999);
     })
+  });
+
+  describe('bool', () => {
+    [
+      { value: true, expected: true, },
+      { value: 1, expected: true, },
+      { value: 2, expected: true, },
+      { value: [], expected: true, }, // would be false in Python, but we're JS here.
+      { value: {}, expected: true, },
+      { value: "a", expected: true, },
+      { value: Infinity, expected: true, },
+      { value: () => {}, expected: true, },
+      { value: "", expected: false, },
+      { value: 0, expected: false, },
+      { value: null, expected: false, },
+      { value: undefined, expected: false, },
+      { value: NaN, expected: false, },
+    ].forEach(({ value, expected }) => {
+        it(`bool(${value}) is ${expected ? 'truthy' : 'falsy'}`, () => {
+          expect(bool(value)).toEqual(expected);
+        });
+      });
   });
 });

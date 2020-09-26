@@ -53,10 +53,6 @@ function bool(value) {
   return !!value;
 }
 
-/**
- * Do not be suprised - ord() yields different results in JavaScript than
- * in Python as JavaScript stores strings as UTF-16 and Python as UTF-8.
- */
 function ord(char) {
   if (arguments.length !== 1) {
     throw new TypeError(`ord() takes exactly one argument (${arguments.length} given)`);
@@ -75,7 +71,7 @@ function ord(char) {
     throw new TypeError(`ord() expected a character, but string of length ${length} found`);
   } 
 
-  return char.charCodeAt(0);
+  return char.codePointAt(0);
 }
 
 

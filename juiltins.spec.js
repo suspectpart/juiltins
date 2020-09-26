@@ -145,7 +145,7 @@ describe('juiltins', () => {
     });
 
     it('determines char code of emojis', () => {
-      expect(ord("💩")).toEqual(55357);
+      expect(ord("💩")).toEqual(128169);
     });
   })
 });

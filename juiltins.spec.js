@@ -457,6 +457,21 @@ describe('juiltins', () => {
       expect(issubclass(C, A)).toBe(true);
     });
 
+    it('works for oldschool prototype chains', () => {
+      // Arrange
+      const A = function() {};
+      const B = function() {};
+      const C = function() {};
+      B.prototype = Object.create(A.prototype);
+      C.prototype = Object.create(B.prototype);
+
+      // Assert
+      expect(issubclass(B, B)).toBe(true);
+      expect(issubclass(B, A)).toBe(true);
+      expect(issubclass(C, B)).toBe(true);
+      expect(issubclass(C, A)).toBe(true);
+    });
+
     it('recognizes the same type as a subclass of itself', () => {
       // Arrange
       class A {}

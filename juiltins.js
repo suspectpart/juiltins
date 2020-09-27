@@ -66,11 +66,11 @@ function abs(n) {
 }
 
 function any(iterable) {
-  return iterable.some(v => !!v);
+  return iterable.some(bool);
 }
 
 function all(iterable) {
-  return iterable.every(v => !!v);
+  return iterable.every(bool);
 }
 
 function chr(value) {

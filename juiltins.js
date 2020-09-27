@@ -9,6 +9,35 @@ function mod(a, b) {
   return (a % b + b) % b;
 }
 
+class FrozenSet {
+  constructor(iterable) {
+    this._set = new Set(iterable);
+
+    // This is a FrozenSet, so we better freeze it.
+    // There is no need to do it, but it somehow makes 
+    // aesthetical sense to do so.
+    Object.freeze(this);
+  }
+
+  values = () => this._set.values();
+  keys = () => this._set.keys();
+  entries = () => this._set.entries();
+  forEach = (callback, thisArg) => this._set.forEach(callback, thisArg);
+  has = (value) => this._set.has(value);
+
+  get size() { 
+    return this._set.size;
+  }
+
+  get [Symbol.toStringTag]() {
+    return "FrozenSet";
+  }
+
+  [Symbol.iterator]() {
+    return this._set[Symbol.iterator]();
+  }
+}
+
 class ZeroDivisionError extends Error {
   constructor() {
     super('integer division or modulo by zero');
@@ -85,6 +114,10 @@ function ord(char) {
   } 
 
   return char.codePointAt(0);
+}
+
+function frozenset(iterable) {
+  return new FrozenSet(iterable);
 }
 
 function hex(n) {
@@ -168,6 +201,6 @@ function type_(name, base, props) {
 }
 
 module.exports = { 
-  abs, all, any, bool, chr, dir, divmod, 
+  abs, all, any, bool, chr, dir, divmod, frozenset,
   hex, ord, type, zip, ZeroDivisionError, ValueError
 };

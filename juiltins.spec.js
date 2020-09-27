@@ -5,6 +5,7 @@ const {
   bool,
   chr,
   divmod,
+  frozenset,
   hex,
   ord,
   type,
@@ -374,5 +375,71 @@ describe('juiltins', () => {
       it('throws Error if arg is a float', () => {
         expect(() => chr(1.2)).toThrow(new TypeError('integer argument expected, got float'));
       });
+  });
+
+  describe('frozenset', () => {
+    it('supports read operations', () => {
+      // Arrange
+      const iterable = [1, 2, 3, 2, 3, 1];
+      const expected = new Set(iterable); 
+
+      // Act
+      const frozen = frozenset(iterable);
+      
+      // Assert
+      expect(frozen.has(1)).toEqual(true);
+      expect(frozen.has(2)).toEqual(true);
+      expect(frozen.has(4)).toEqual(false);
+
+      expect([...frozen.keys()]).toEqual([...expected.keys()]);
+      expect([...frozen.values()]).toEqual([...expected.values()]);
+      expect([...frozen.entries()]).toEqual([...expected.entries()]);
+    });
+
+    it('won\'t allow to change its size', () => {
+      // Arrange
+      const frozen = frozenset([1, 2]);
+
+      // Act
+      frozen.size = 3;
+
+      // Assert
+      expect(frozen.size).toEqual(2);
+    });
+
+    it('supports forEach()', () => {
+      // Arrange
+      const frozen = frozenset([1, 2, 3]);
+      spy = [];
+
+      // Act
+      frozen.forEach(n => spy.push(n ** 2));
+      
+      // Assert
+      expect(spy).toEqual([1, 4, 9]);
+    });
+
+    it('supports iterator', () => {
+      // Arrange
+      const frozen = frozenset([1, 2, 3]);
+
+      // Act
+      const iterator = frozen[Symbol.iterator]();
+      
+      // Assert
+      expect([...iterator]).toEqual([1, 2, 3]);
+    });
+
+    it('identifies itself', () => {
+      // Arrange
+      const frozen = frozenset([1, 2, 3]);
+
+      // Act
+      const asString = Object.prototype.toString.call(frozen);
+
+      // Assert
+      expect(asString).toEqual('[object FrozenSet]');
+      expect(frozen.toString()).toEqual('[object FrozenSet]');
+    });
   });
 });

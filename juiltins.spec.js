@@ -8,6 +8,7 @@ const {
   frozenset,
   hex,
   issubclass,
+  isinstance,
   ord,
   type,
   zip,
@@ -450,11 +451,13 @@ describe('juiltins', () => {
       class A {}
       class B extends A {}
       class C extends B {}
+      class D {}
 
       // Assert
       expect(issubclass(B, A)).toBe(true);
       expect(issubclass(C, B)).toBe(true);
       expect(issubclass(C, A)).toBe(true);
+      expect(issubclass(C, D)).toBe(false);
     });
 
     it('works for oldschool prototype chains', () => {
@@ -479,5 +482,24 @@ describe('juiltins', () => {
       // Assert
       expect(issubclass(A, A)).toBe(true);
     });    
+  });
+
+  describe('insinstance', () => {
+    it('works on classes and subclasses', () => {
+      // Arrange
+      class A {}
+      class B extends A {}
+      class C extends B {}
+      class D {};
+
+      // Act
+      const instance = new C();
+
+      // Assert
+      expect(isinstance(instance, C)).toBe(true);
+      expect(isinstance(instance, B)).toBe(true);
+      expect(isinstance(instance, A)).toBe(true);
+      expect(isinstance(instance, D)).toBe(false);
+    });
   });
 });

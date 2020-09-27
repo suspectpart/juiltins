@@ -6,6 +6,7 @@ const {
   divmod,
   hex,
   ord,
+  type,
   zip,
   ZeroDivisionError,
 } = require("./juiltins");
@@ -296,6 +297,52 @@ describe('juiltins', () => {
       
       // Assert
       expect([...actual]).toEqual(expected);
+    });
+  });
+
+  describe('type', () => {
+    it('returns the constructor of objects', () => {
+      // Arrange
+      class Thing {
+        constructor(value) {
+          this._value = value;
+        }
+      }
+
+      const thing = new Thing(2);
+
+      // Act
+      ctor = type(thing);
+
+      expect(ctor).toEqual(thing.constructor);
+      expect((new ctor(3))._value).toEqual(3);
+    });
+
+    it('returns null or undefined', () => {
+      expect(type(undefined)).toEqual(undefined);
+      expect(type(null)).toEqual(null);
+    });
+
+    it('creates new types', () => {
+      class Person {
+        constructor(name) {
+          this.name = name;
+        }
+      }
+
+      const name = 'Employee';
+      const base = new Person();
+      const props = {prop: 100};
+
+      // Act
+      const Employee = type(name, base, props);
+      const employee = new Employee();
+
+      // Assert
+      expect(employee.__proto__).toBe(base);
+      expect(employee.prop).toEqual(100);
+      expect(employee.constructor).toBe(Employee);
+      expect(employee.constructor.name).toBe("Employee");
     });
   });
 });

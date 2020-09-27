@@ -109,7 +109,53 @@ function* zip(...iterables) {
   }
 }
 
+/**
+ * is that in any way sane? :-) 
+ */
+function type(...args) {
+  if(args.length === 3) return type_(...args);
+  if(args.length != 1)  {
+    throw new Error("TODO: test this");
+  }
+
+  const obj = args[0];
+  if (obj === undefined || obj === null) {
+    return obj;
+  }
+
+  /**
+   * Caution: This doesn't work well with old-school inheritance!
+   * 
+   * function Animal() {}
+   * function Dog() {}
+   * Dog.prototype = Object.create(Animal.prototype)
+   * 
+   * new Dog().constructor // => will be [Function: Animal], NOT [Function: Dog]!
+   * 
+   * If going this path, make sure to fix the constructor prop on the prototype:
+   * 
+   * Dog.prototype.constructor = Dog
+   * new Dog().constructor // => Fixed, will be [Function: Dog] again.
+   */
+  return obj.constructor;
+}
+
+function type_(name, base, props) {
+  const Type = {[name]: function() {}}[name];
+
+  if (base && typeof base === 'object') {
+    Type.prototype = base;
+
+    // avoid shadowing the original constructor
+    Type.prototype.constructor = Type;
+  }
+  
+  Object.assign(Type.prototype, props);
+
+  return Type;
+}
+
 module.exports = { 
   abs, all, any, bool, dir, divmod, 
-  hex, ord, zip, ZeroDivisionError 
+  hex, ord, type, zip, ZeroDivisionError 
 };

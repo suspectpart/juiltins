@@ -3,12 +3,14 @@ const {
   all,
   any,
   bool,
+  chr,
   divmod,
   hex,
   ord,
   type,
   zip,
   ZeroDivisionError,
+  ValueError
 } = require("./juiltins");
 
 describe('juiltins', () => {
@@ -344,5 +346,33 @@ describe('juiltins', () => {
       expect(employee.constructor).toBe(Employee);
       expect(employee.constructor.name).toBe("Employee");
     });
+  });
+
+  describe('chr', () => {
+      it('converts int to char', () => {
+        expect(chr(10)).toEqual('\n');
+        expect(chr(8364)).toEqual('€');
+        expect(chr(0x110000 - 1)).toEqual('􏿿');
+      });
+
+      it('converts back and forth', () => {
+        expect(ord(chr(0))).toEqual(0);
+        expect(ord(chr(12345))).toEqual(12345);
+        expect(ord(chr(0x110000 - 1))).toEqual(0x110000 - 1);
+      });
+
+      it('throws Error if arg is out of range', () => {
+        expect(() => chr(-1)).toThrow(new ValueError('chr() arg not in range(0x110000)'));
+        expect(() => chr(0x110000)).toThrow(new ValueError('chr() arg not in range(0x110000)'));
+        expect(() => chr(0x123456)).toThrow(new ValueError('chr() arg not in range(0x110000)'));
+      });
+
+      it('throws Error if arg is not a number', () => {
+        expect(() => chr("test")).toThrow(new ValueError('an integer is required (got type string)'));
+      });
+
+      it('throws Error if arg is a float', () => {
+        expect(() => chr(1.2)).toThrow(new TypeError('integer argument expected, got float'));
+      });
   });
 });

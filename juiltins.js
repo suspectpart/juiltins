@@ -15,11 +15,7 @@ class ZeroDivisionError extends Error {
   }
 }
 
-class TypeError extends Error {
-  constructor(message) {
-    super(message)
-  }
-}
+class ValueError extends Error { }
 
 // TODO: return the magnitude if n is a complex number
 function abs(n) {
@@ -32,6 +28,22 @@ function any(iterable) {
 
 function all(iterable) {
   return iterable.every(v => !!v);
+}
+
+function chr(value) {
+  if (typeof value !== 'number') {
+    throw new TypeError(`an integer is required (got type ${typeof value})`);
+  }
+
+  if(!Number.isInteger(value)) {
+    throw new TypeError('integer argument expected, got float');
+  }
+
+  if(value < 0 || value >= 0x110000) {
+    throw new ValueError('chr() arg not in range(0x110000)');
+  }
+
+  return String.fromCodePoint(value);
 }
 
 function dir(obj) {
@@ -156,6 +168,6 @@ function type_(name, base, props) {
 }
 
 module.exports = { 
-  abs, all, any, bool, dir, divmod, 
-  hex, ord, type, zip, ZeroDivisionError 
+  abs, all, any, bool, chr, dir, divmod, 
+  hex, ord, type, zip, ZeroDivisionError, ValueError
 };

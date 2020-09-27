@@ -19,11 +19,25 @@ class FrozenSet {
     Object.freeze(this);
   }
 
-  values = () => this._set.values();
-  keys = () => this._set.keys();
-  entries = () => this._set.entries();
-  forEach = (callback, thisArg) => this._set.forEach(callback, thisArg);
-  has = (value) => this._set.has(value);
+  values() {
+    return this._set.values();
+  }
+
+  keys() {
+    return this._set.keys();
+  }
+
+  entries() {
+    return  this._set.entries();
+  }
+
+  forEach(callback, thisArg) {
+    return this._set.forEach(callback, thisArg);
+  }
+
+  has(value) {
+    return this._set.has(value);
+  }
 
   get size() { 
     return this._set.size;
@@ -202,5 +216,5 @@ function type_(name, base, props) {
 
 module.exports = { 
   abs, all, any, bool, chr, dir, divmod, frozenset,
-  hex, ord, type, zip, ZeroDivisionError, ValueError
+  hex, ord, type, zip, ZeroDivisionError, ValueError, FrozenSet
 };

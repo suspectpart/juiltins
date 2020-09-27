@@ -113,8 +113,12 @@ function issubclass(B, A) {
   return Object.is(B, A) || B.prototype instanceof A;
 }
 
-function isinstance(obj, cls) {
-  return obj instanceof cls;
+function isinstance(obj, classOrClasses) {
+  if (Array.isArray(classOrClasses)) {
+    return classOrClasses.some(cls => obj instanceof cls);
+  }
+
+  return obj instanceof classOrClasses;
 }
 
 function ord(char) {

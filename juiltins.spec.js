@@ -485,7 +485,7 @@ describe('juiltins', () => {
   });
 
   describe('insinstance', () => {
-    it('works on classes and subclasses', () => {
+    it('checks against a single class', () => {
       // Arrange
       class A {}
       class B extends A {}
@@ -493,13 +493,32 @@ describe('juiltins', () => {
       class D {};
 
       // Act
-      const instance = new C();
+      const c = new C();
 
       // Assert
-      expect(isinstance(instance, C)).toBe(true);
-      expect(isinstance(instance, B)).toBe(true);
-      expect(isinstance(instance, A)).toBe(true);
-      expect(isinstance(instance, D)).toBe(false);
+      expect(isinstance(c, C)).toBe(true);
+      expect(isinstance(c, B)).toBe(true);
+      expect(isinstance(c, A)).toBe(true);
+      expect(isinstance(c, D)).toBe(false);
+    });
+
+    it('checks against a list of classes', () => {
+      // Arrange
+      class A {}
+      class B extends A {}
+      class C {};
+      class D {};
+
+      // Act
+      const b = new B();
+
+      // Assert
+      expect(isinstance(b, [A])).toBe(true);
+      expect(isinstance(b, [B])).toBe(true);
+      expect(isinstance(b, [A, B])).toBe(true);
+      expect(isinstance(b, [A, B, C])).toBe(true);
+      expect(isinstance(b, [C])).toBe(false);
+      expect(isinstance(b, [C, D])).toBe(false);
     });
   });
 });

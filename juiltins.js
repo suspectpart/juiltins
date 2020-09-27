@@ -109,6 +109,10 @@ function bool(value) {
   return !!value;
 }
 
+function issubclass(B, A) {
+  return Object.is(B, A) || B.prototype instanceof A;
+}
+
 function ord(char) {
   if (arguments.length !== 1) {
     throw new TypeError(`ord() takes exactly one argument (${arguments.length} given)`);
@@ -216,5 +220,5 @@ function type_(name, base, props) {
 
 module.exports = { 
   abs, all, any, bool, chr, dir, divmod, frozenset,
-  hex, ord, type, zip, ZeroDivisionError, ValueError, FrozenSet
+  hex, issubclass, ord, type, zip, ZeroDivisionError, ValueError, FrozenSet
 };

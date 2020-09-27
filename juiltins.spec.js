@@ -7,6 +7,7 @@ const {
   divmod,
   frozenset,
   hex,
+  issubclass,
   ord,
   type,
   zip,
@@ -441,5 +442,27 @@ describe('juiltins', () => {
       expect(asString).toEqual('[object FrozenSet]');
       expect(frozen.toString()).toEqual('[object FrozenSet]');
     });
+  });
+
+  describe('issubclass', () => {
+    it('checks class hierarchy', () => {
+      // Arrange
+      class A {}
+      class B extends A {}
+      class C extends B {}
+
+      // Assert
+      expect(issubclass(B, A)).toBe(true);
+      expect(issubclass(C, B)).toBe(true);
+      expect(issubclass(C, A)).toBe(true);
+    });
+
+    it('recognizes the same type as a subclass of itself', () => {
+      // Arrange
+      class A {}
+
+      // Assert
+      expect(issubclass(A, A)).toBe(true);
+    });    
   });
 });

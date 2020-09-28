@@ -10,6 +10,7 @@ const {
   issubclass,
   isinstance,
   ord,
+  range,
   type,
   zip,
   ZeroDivisionError,
@@ -519,6 +520,69 @@ describe('juiltins', () => {
       expect(isinstance(b, [A, B, C])).toBe(true);
       expect(isinstance(b, [C])).toBe(false);
       expect(isinstance(b, [C, D])).toBe(false);
+    });
+  });
+
+  describe('range()', () => {
+    it('exposes start, stop and step', () => {
+      // Arrange
+      const threeSixNine = range(3, 12, 3);
+
+      // Assert
+      expect(threeSixNine.start).toEqual(3);
+      expect(threeSixNine.stop).toEqual(12);
+      expect(threeSixNine.step).toEqual(3);
+    });
+
+    it('keeps start, stop and step immutable', () => {
+      // Arrange
+      const myRange = range(1, 10, 2);
+
+      myRange.start = 2;
+      myRange.stop = 11;
+      myRange.step = 3;
+
+      // Assert
+      expect(myRange.start).toEqual(1);
+      expect(myRange.stop).toEqual(10);
+      expect(myRange.step).toEqual(2);
+    });
+
+    it('does not run away to positive infinity', () => {
+      expect([...range(0, 0, 10)]).toEqual([]);
+      expect([...range(10, 10, 1)]).toEqual([]);
+      expect([...range(12, 10, 2)]).toEqual([]);
+    });
+
+    it('does not run away to negative infinity', () => {
+      expect([...range(5, -5, 1)]).toEqual([])
+      expect([...range(0, -1000, 20)]).toEqual([])
+    });
+
+    it('defaults start to 0 and step to 1', () => {
+      expect(range(10).start).toEqual(0);
+      expect(range(10).step).toEqual(1);
+    });
+
+    it('defaults step to 1', () => {
+      expect(range(10, 20).step).toEqual(1);
+    });
+
+    it('steps in positive direction', () => {
+      expect([...range(0, 5, 1)]).toEqual([0, 1, 2, 3, 4])
+      expect([...range(0, 10, 2)]).toEqual([0, 2, 4, 6, 8])
+      expect([...range(-20, 20, 10)]).toEqual([-20, -10, 0, 10])
+      expect([...range(5, 10, 5)]).toEqual([5])
+      expect([...range(0, 10, 10)]).toEqual([0])
+    });
+
+    it('steps in negative direction', () => {
+      expect([...range(-4, -10, -2)]).toEqual([-4, -6, -8]);
+      expect([...range(10, -10, -5)]).toEqual([10, 5, 0, -5]);
+    });
+
+    it('throws ValueError if step=0', () => {
+      expect(() => range(1, 2, 0)).toThrow(new ValueError('range() arg 3 must not be zero'));
     });
   });
 });

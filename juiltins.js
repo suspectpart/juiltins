@@ -89,6 +89,47 @@ function chr(value) {
   return String.fromCodePoint(value);
 }
 
+class Range {
+  constructor(start, stop, step) {
+    if (step === 0) {
+      throw new ValueError('range() arg 3 must not be zero');
+    }
+    
+    this.start = start;
+    this.stop = stop;
+    this.step = step;
+
+    Object.freeze(this);
+  }
+
+  *[Symbol.iterator] () {
+    const ascending = this.start < this.stop;
+
+    if (ascending && this.step < 0) return;
+    if (!ascending && this.step > 0) return;
+
+    let current = this.start;
+
+    while(ascending ? current < this.stop : current > this.stop) {
+      yield current;
+      current += this.step
+    }
+  }
+}
+
+function range(start, stop, step) {
+  if (arguments.length === 1) {
+    stop = start;
+    start = 0;
+  } 
+
+  if (arguments.length < 3) {
+    step = 1;
+  }
+
+  return new Range(start, stop, step);
+}
+
 function dir(obj) {
   console.dir(obj);
 }
@@ -228,5 +269,5 @@ function type_(name, base, props) {
 
 module.exports = { 
   abs, all, any, bool, chr, dir, divmod, frozenset,
-  hex, issubclass, isinstance, ord, type, zip, ZeroDivisionError, ValueError, FrozenSet
+  hex, issubclass, isinstance, ord, range, type, zip, ZeroDivisionError, ValueError, FrozenSet
 };

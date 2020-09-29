@@ -1,3 +1,5 @@
+__iter__ = Symbol.iterator;
+
 /**
  * JavaScript-Lol: The modulo bug.
  * https://dustinpfister.github.io/2017/09/02/js-whats-wrong-with-modulo/
@@ -368,8 +370,15 @@ function int(value, base) {
   return result;
 }
 
+/**
+ * TODO: What about the sentinel?
+ */
+function iter(iterable) {
+  return iterable[__iter__]();
+}
+
 module.exports = { 
   abs, all, any, bool, chr, dir, divmod, frozenset, hex, int, len,
-  issubclass, isinstance, ord, range, type, zip, 
-  ValueError, ZeroDivisionError, OverflowError, FrozenSet
+  issubclass, isinstance, ord, range, type, zip, iter,
+  ValueError, ZeroDivisionError, OverflowError, FrozenSet, __iter__
 };

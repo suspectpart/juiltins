@@ -10,6 +10,7 @@ const {
   int,
   issubclass,
   isinstance,
+  iter,
   len,
   ord,
   range,
@@ -17,7 +18,8 @@ const {
   zip,
   OverflowError,
   ZeroDivisionError,
-  ValueError
+  ValueError,
+  __iter__
 } = require("./juiltins");
 
 describe('juiltins', () => {
@@ -851,6 +853,68 @@ describe('juiltins', () => {
 
     it.skip('supports base=0 (interpret exactly as a code literal)', () => {
       expect.fail('not implemented');
+    });
+  });
+
+  describe('iter()', () => {
+    it('searches for [Symbol.iterator]', () => {
+      // Arrange
+      class Stub {
+        *[Symbol.iterator]() {
+          yield 1;
+          yield 2;
+          yield 3;
+        }
+      }
+
+      const iterable = new Stub();
+
+      // Act
+      iterator = iter(iterable);
+
+      // Assert
+      expect([...iterator]).toEqual([1, 2, 3]);
+    });
+
+    it('works on Arrays', () => {
+      // Arrange
+      const arr = [1, 2, 3];
+
+      // Act
+      const iterator = iter(arr);
+
+      // Assert
+      expect([...iterator]).toEqual(arr);
+    });
+
+    it('works on generators', () => {
+      // Arrange
+      function* generator() { yield 1; }
+
+      // Act
+      const iterator = iter(generator());
+
+      // Assert
+      expect([...iterator]).toEqual([1]);
+    });
+
+    it('aliases Symbol.iterator to __iter__', () => {
+         // Arrange
+         class Stub {
+          *[__iter__]() {
+            yield 1;
+            yield 2;
+            yield 3;
+          }
+        }
+
+        const iterable = new Stub();
+  
+        // Act
+        iterator = iter(iterable);
+  
+        // Assert
+        expect([...iterator]).toEqual([1, 2, 3]);
     });
   });
 });

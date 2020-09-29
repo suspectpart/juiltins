@@ -850,5 +850,9 @@ describe('juiltins', () => {
     it.skip('only parses when the whole string can be parsed', () => {
       expect(() => int('12345blablabla')).toThrow(ValueError);
     });
+
+    it.skip('test for anything not a number or string (object, function, date, null, undefined...)', () => {
+      expect.fail('not implemented');
+    });
   });
 });

@@ -302,56 +302,40 @@ function len(thing) {
 
 /**
  * TODO: Reject anything not string or number
- * TODO: 0b1111
- * TODO: 0x1111
- * TODO: Octal?
  */
 function int(value, base = 10) {
   if (base < 2 || base > 36) {
     throw new ValueError("int() base must be >= 2 and <= 36");
   }
-
-  let sign = 1;
-  const t = typeof value;
   
-  if (t === 'boolean') {
+  if (typeof value === 'boolean') {
     return value + 0;
   }
 
-  if (t === 'string') {
+  if (typeof value === 'string') {
     value = value.trim().toLowerCase();
+    let sign = 1;
     let unsigned = value;
-    let result;
 
     if (value.startsWith('-')) {
       unsigned = value.slice(1);
       sign = -1;
     }
 
-    if (unsigned.startsWith('0b')) {
-      if (base !== 2 || Number.isNaN(result = Number(unsigned))) {
-        throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
+    const literal = (expectedBase) => {
+      return (n, base, sign) => {
+        let result;
+        if (base !== expectedBase || Number.isNaN(result = Number(n))) {
+          throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
+        }
+  
+        return result * sign;
       }
-
-      return result * sign;
     }
 
-    if (unsigned.startsWith('0x')) {
-      if (base !== 16 || Number.isNaN(result = Number(unsigned))) {
-        throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
-      }
-
-      return result * sign;
-    }
-
-    if (unsigned.startsWith('0o')) {
-      if (base !== 8 || Number.isNaN(result = Number(unsigned))) {
-        throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
-      }
-
-      return result * sign;
-    }
-    // throw new ValueError(`int() argument must be a string, a bytes-like object or a number, not ${type}'`);
+    if (unsigned.startsWith('0b')) return literal(2)(unsigned, base, sign);
+    if (unsigned.startsWith('0o')) return literal(8)(unsigned, base, sign);
+    if (unsigned.startsWith('0x')) return literal(16)(unsigned, base, sign);
   }
 
   if (Number.isInteger(value)) {

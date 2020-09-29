@@ -58,7 +58,13 @@ class ZeroDivisionError extends Error {
   }
 }
 
-class ValueError extends Error { }
+class OverflowError extends Error {
+  constructor() {
+    super('cannot convert float infinity to integer');
+  }
+}
+
+class ValueError extends Error {}
 
 // TODO: return the magnitude if n is a complex number
 function abs(n) {
@@ -275,7 +281,11 @@ function type_(name, base, props) {
 }
 
 function len(thing) {
-  if (typeof thing.length === 'number') {
+  if(typeof thing === 'string') {
+    return thing.length;
+  }
+
+  if (thing && typeof thing.length === 'number') {
     return thing.length;
   }
 
@@ -287,10 +297,87 @@ function len(thing) {
     return thing.byteLength;
   }
 
-  throw new TypeError("Paralleeeeel");
+  throw new TypeError(`object of type '${typeof thing}' has no len()`);
 }
 
+/**
+ * TODO: Reject anything not string or number
+ * TODO: 0b1111
+ * TODO: 0x1111
+ * TODO: Octal?
+ */
+function int(value, base = 10) {
+  if (base < 2 || base > 36) {
+    throw new ValueError("int() base must be >= 2 and <= 36");
+  }
+
+  let sign = 1;
+  const t = typeof value;
+  
+  if (t === 'boolean') {
+    return value + 0;
+  }
+
+  if (t === 'string') {
+    value = value.trim();
+    let unsigned = value;
+    let result;
+
+    if (value.startsWith('-')) {
+      unsigned = value.slice(1);
+      sign = -1;
+    }
+
+    if (unsigned.startsWith('0b')) {
+      if (base !== 2 || Number.isNaN(result = Number(unsigned))) {
+        throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
+      }
+
+      return result * sign;
+    }
+
+    if (unsigned.startsWith('0x')) {
+      if (base !== 16 || Number.isNaN(result = Number(unsigned))) {
+        throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
+      }
+
+      return result * sign;
+    }
+
+    if (unsigned.startsWith('0o')) {
+      if (base !== 8 || Number.isNaN(result = Number(unsigned))) {
+        throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
+      }
+
+      return result * sign;
+    }
+    // throw new ValueError(`int() argument must be a string, a bytes-like object or a number, not ${type}'`);
+  }
+
+  if (Number.isInteger(value)) {
+    return value;
+  }
+
+  if(value === Infinity || value === -Infinity) {
+    throw new OverflowError();
+  }
+
+  if(Number.isNaN(value)) {
+    throw new ValueError('cannot convert float NaN to integer');
+  }
+
+  const int_ =  parseInt(value, base);
+
+  if (Number.isNaN(int_) || Number.isNaN(Number(value))) {
+    throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
+  }
+
+  return int_;
+}
+
+
 module.exports = { 
-  abs, all, any, bool, chr, dir, divmod, frozenset, len,
-  hex, issubclass, isinstance, ord, range, type, zip, ZeroDivisionError, ValueError, FrozenSet
+  abs, all, any, bool, chr, dir, divmod, frozenset, hex, int, len,
+  issubclass, isinstance, ord, range, type, zip, 
+  ValueError, ZeroDivisionError, OverflowError, FrozenSet
 };

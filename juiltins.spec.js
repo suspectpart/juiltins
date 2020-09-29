@@ -7,6 +7,7 @@ const {
   divmod,
   frozenset,
   hex,
+  int,
   issubclass,
   isinstance,
   len,
@@ -14,6 +15,7 @@ const {
   range,
   type,
   zip,
+  OverflowError,
   ZeroDivisionError,
   ValueError
 } = require("./juiltins");
@@ -594,6 +596,19 @@ describe('juiltins', () => {
   });
 
   describe('len()', () => {
+    it('works with strings', () => {
+      expect(len('python')).toEqual(6);
+    });
+
+    it('works with functions', () => {
+      // JavaScript functions expose the number of parameters as their length.
+      // Did you know? I didn't.
+      expect(len((a, b, c) => {})).toEqual(3);
+      expect(len(function(a, b, c){})).toEqual(3);
+      expect(len(async function(a, b, c, d){})).toEqual(4);
+      expect(len(function*(d, e){})).toEqual(2);
+    })
+
     it('works with Arrays', () => {
       expect(len([1, 2, 3])).toEqual(3);
     });
@@ -679,6 +694,124 @@ describe('juiltins', () => {
 
     it('works with BigUint64Array', () => {
       expect(len(new BigUint64Array([BigInt(2 ** 127), BigInt(1)]))).toEqual(2);
+    });
+
+    it('throws TypeError if length can not be determined', () => {
+      expect(() => len(true)).toThrow(new TypeError("object of type 'boolean' has no len()"));
+      expect(() => len(null)).toThrow(new TypeError("object of type 'object' has no len()"));
+      expect(() => len({})).toThrow(new TypeError("object of type 'object' has no len()"));
+      expect(() => len(undefined)).toThrow(new TypeError("object of type 'undefined' has no len()"));
+    });
+  });
+
+  describe('int()', () => {
+    it('allows only bases >= 2 and <= 36', () => {
+      const error = new ValueError("int() base must be >= 2 and <= 36");
+      expect(() => int(1, -10)).toThrow(error);
+      expect(() => int(1, 0)).toThrow(error);
+      expect(() => int(1, 1)).toThrow(error);
+      expect(() => int(1, 37)).toThrow(error);
+    });
+
+    it('only allows 0x prefix for base 16', () => {
+      expect(int("0x0", 16)).toEqual(0);
+      expect(int("0xaaff", 16)).toEqual(43775);
+      expect(int("-0xaaff", 16)).toEqual(-43775);
+      expect(() => int('0x1', 2)).toThrow(new ValueError("invalid literal for int() with base 2: '0x1'"));
+      expect(() => int('0x1', 10)).toThrow(new ValueError("invalid literal for int() with base 10: '0x1'"));
+      expect(() => int('0x1', 17)).toThrow(new ValueError("invalid literal for int() with base 17: '0x1'"));
+      expect(() => int('0x1', 36)).toThrow(new ValueError("invalid literal for int() with base 36: '0x1'"));
+    });
+
+    it('returns numbers unchanged', () => {
+      expect(int(0)).toEqual(0);
+      expect(int(2 ** 32)).toEqual(2 ** 32);
+      expect(int(-4096)).toEqual(-4096);
+    });
+
+    it('floors floats', () => {
+      expect(int(10.5)).toEqual(10);
+      expect(int(.2)).toEqual(0);
+      expect(int(-32.5)).toEqual(-32);
+    });
+
+    it('parses booleans', () => {
+      expect(int(false)).toEqual(0);
+      expect(int(true)).toEqual(1);
+    });
+
+    it('parses binary strings', () => {
+      expect(int('0b0', 2)).toEqual(0);
+      expect(int('0b1111', 2)).toEqual(15);
+      expect(int('     0b1111', 2)).toEqual(15);
+      expect(int('0b1111     ', 2)).toEqual(15);
+      expect(int('-0b1111', 2)).toEqual(-15);
+      expect(int('     -0b1111     ', 2)).toEqual(-15);
+      expect(() => int('-0b11gargabe', 2)).toThrow(new ValueError("invalid literal for int() with base 2: '-0b11gargabe'"));
+    });
+
+    it('parses octal strings', () => {
+      expect(int('0o0', 8)).toEqual(0);
+      expect(int('0o77', 8)).toEqual(63);
+      expect(int('      0o77', 8)).toEqual(63);
+      expect(int('0o77      ', 8)).toEqual(63);
+      expect(int('-0o77', 8)).toEqual(-63);
+      expect(int('        -0o77        ', 8)).toEqual(-63);
+      expect(() => int('-0o77gargabe', 8)).toThrow(new ValueError("invalid literal for int() with base 8: '-0o77gargabe'"));
+    });
+
+    it('parses hex strings', () => {
+      expect(int('0x0', 16)).toEqual(0);
+      expect(int('0xff', 16)).toEqual(255);
+      expect(int('    0xff', 16)).toEqual(255);
+      expect(int('0xff    ', 16)).toEqual(255);
+      expect(int('-0xff', 16)).toEqual(-255);
+      expect(int('    -0xff      ', 16)).toEqual(-255);
+      expect(() => int('-0x11gargabe', 16)).toThrow(new ValueError("invalid literal for int() with base 16: '-0x11gargabe'"));
+    });
+
+    it('works with all kinds of bases', () => {
+
+    });
+
+    it('fails to convert +/-Infinity with OverflowError', () => {      
+      expect(() => int(+Infinity)).toThrow(new OverflowError());
+      expect(() => int(-Infinity)).toThrow(new OverflowError());
+    });
+
+    it('fails to convert NaN to integer with ValueError', () => {
+      expect(() => int(NaN)).toThrow(new ValueError('cannot convert float NaN to integer'));
+    });
+
+    it('fails to parse empty string', () => {
+      expect(() => int('')).toThrow(new ValueError("invalid literal for int() with base 10: ''"));
+    });
+
+    it('fails to parse malformed base 10 strings', () => {
+      expect(() => int('test')).toThrow(ValueError);
+      expect(() => int('0b11100')).toThrow(ValueError);
+      expect(() => int('0x11100')).toThrow(ValueError);
+      expect(() => int('   - 10000')).toThrow(ValueError);
+    });
+
+    it('parses base 10 number strings', () => {
+      expect(int("0")).toEqual(0);
+      expect(int("1")).toEqual(1);
+      expect(int("-1")).toEqual(-1);
+      expect(int("     2000")).toEqual(2000);
+      expect(int("2000     ")).toEqual(2000);
+      expect(int("   2000  ")).toEqual(2000);
+    });
+
+    it('ignores leading zeros', () => {
+      // Python does this as well
+      expect(int("0")).toEqual(0);
+      expect(int("012345")).toEqual(12345);
+      expect(int("0000000012345")).toEqual(12345);
+    })
+
+    it('only parses when the whole string can be parsed', () => {
+      expect(() => int('12345blablabla')).toThrow(ValueError);
     });
   });
 });

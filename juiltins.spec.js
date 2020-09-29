@@ -534,6 +534,12 @@ describe('juiltins', () => {
       expect(threeSixNine.step).toEqual(3);
     });
 
+    it('knows its length', () => {
+      expect(range(0, 100, 1).length).toEqual(100);
+      expect(range(40, -40, -2).length).toEqual(40);
+      expect(range(0, 100, -2).length).toEqual(0);
+    });
+
     it('keeps start, stop and step immutable', () => {
       // Arrange
       const myRange = range(1, 10, 2);

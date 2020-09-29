@@ -89,30 +89,35 @@ function chr(value) {
   return String.fromCodePoint(value);
 }
 
+/**
+ * Party inspired by https://github.com/dcrosta/xrange -- thank you!
+ */
 class Range {
   constructor(start, stop, step) {
     if (step === 0) {
       throw new ValueError('range() arg 3 must not be zero');
+    } else if(step < 0) {
+      stop = Math.min(stop, start);
+    } else {
+      stop = Math.max(stop, start);
     }
-    
+
     this.start = start;
     this.stop = stop;
     this.step = step;
+    this.length = Math.floor((stop - start) / step) + bool((stop - start) % step)
 
     Object.freeze(this);
   }
 
   *[Symbol.iterator] () {
-    const ascending = this.start < this.stop;
+    let last = this.start;
+    let count = 0
 
-    if (ascending && this.step < 0) return;
-    if (!ascending && this.step > 0) return;
-
-    let current = this.start;
-
-    while(ascending ? current < this.stop : current > this.stop) {
-      yield current;
-      current += this.step
+    while (count < this.length) {
+      yield last;
+      last += this.step;
+      count += 1;
     }
   }
 }

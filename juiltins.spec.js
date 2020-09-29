@@ -750,6 +750,12 @@ describe('juiltins', () => {
       expect(() => int('-0b11gargabe', 2)).toThrow(new ValueError("invalid literal for int() with base 2: '-0b11gargabe'"));
     });
 
+    it('rejects binary strings with base != 2', () => {
+      expect(() => int('0b1111', 8)).toThrow(new ValueError("invalid literal for int() with base 8: '0b1111'"));
+      expect(() => int('0b1111', 16)).toThrow(new ValueError("invalid literal for int() with base 16: '0b1111'"));
+      expect(() => int('0b1111', 36)).toThrow(new ValueError("invalid literal for int() with base 36: '0b1111'"));
+    })
+
     it('parses octal strings', () => {
       expect(int('0o0', 8)).toEqual(0);
       expect(int('0o77', 8)).toEqual(63);
@@ -760,6 +766,12 @@ describe('juiltins', () => {
       expect(() => int('-0o77gargabe', 8)).toThrow(new ValueError("invalid literal for int() with base 8: '-0o77gargabe'"));
     });
 
+    it('rejects octal strings with base != 8', () => {
+      expect(() => int('0o77', 10)).toThrow(new ValueError("invalid literal for int() with base 10: '0o77'"));
+      expect(() => int('0o77', 16)).toThrow(new ValueError("invalid literal for int() with base 16: '0o77'"));
+      expect(() => int('0o77', 20)).toThrow(new ValueError("invalid literal for int() with base 20: '0o77'"));
+    })
+
     it('parses hex strings', () => {
       expect(int('0x0', 16)).toEqual(0);
       expect(int('0xff', 16)).toEqual(255);
@@ -767,7 +779,14 @@ describe('juiltins', () => {
       expect(int('0xff    ', 16)).toEqual(255);
       expect(int('-0xff', 16)).toEqual(-255);
       expect(int('    -0xff      ', 16)).toEqual(-255);
+      expect(() => int('0xff', 5)).toThrow(new ValueError("invalid literal for int() with base 5: '0xff'"));
       expect(() => int('-0x11gargabe', 16)).toThrow(new ValueError("invalid literal for int() with base 16: '-0x11gargabe'"));
+    });
+
+    it('rejects hex strings with base != 16', () => {
+      expect(() => int('0xff', 2)).toThrow(new ValueError("invalid literal for int() with base 2: '0xff'"));
+      expect(() => int('0xff', 10)).toThrow(new ValueError("invalid literal for int() with base 10: '0xff'"));
+      expect(() => int('0xff', 24)).toThrow(new ValueError("invalid literal for int() with base 24: '0xff'"));
     });
 
     it('works with all kinds of bases', () => {

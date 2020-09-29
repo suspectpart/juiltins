@@ -319,7 +319,7 @@ function int(value, base = 10) {
   }
 
   if (t === 'string') {
-    value = value.trim();
+    value = value.trim().toLowerCase();
     let unsigned = value;
     let result;
 

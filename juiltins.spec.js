@@ -743,6 +743,7 @@ describe('juiltins', () => {
     it('parses binary strings', () => {
       expect(int('0b0', 2)).toEqual(0);
       expect(int('0b1111', 2)).toEqual(15);
+      expect(int('0B1111', 2)).toEqual(15); // upper case
       expect(int('     0b1111', 2)).toEqual(15);
       expect(int('0b1111     ', 2)).toEqual(15);
       expect(int('-0b1111', 2)).toEqual(-15);
@@ -759,6 +760,7 @@ describe('juiltins', () => {
     it('parses octal strings', () => {
       expect(int('0o0', 8)).toEqual(0);
       expect(int('0o77', 8)).toEqual(63);
+      expect(int('0O77', 8)).toEqual(63); // upper case
       expect(int('      0o77', 8)).toEqual(63);
       expect(int('0o77      ', 8)).toEqual(63);
       expect(int('-0o77', 8)).toEqual(-63);
@@ -775,6 +777,7 @@ describe('juiltins', () => {
     it('parses hex strings', () => {
       expect(int('0x0', 16)).toEqual(0);
       expect(int('0xff', 16)).toEqual(255);
+      expect(int('0Xff', 16)).toEqual(255); // upper case
       expect(int('    0xff', 16)).toEqual(255);
       expect(int('0xff    ', 16)).toEqual(255);
       expect(int('-0xff', 16)).toEqual(-255);

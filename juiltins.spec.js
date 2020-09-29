@@ -9,6 +9,7 @@ const {
   hex,
   issubclass,
   isinstance,
+  len,
   ord,
   range,
   type,
@@ -18,7 +19,7 @@ const {
 } = require("./juiltins");
 
 describe('juiltins', () => {
-  describe('abs', () => {
+  describe('abs()', () => {
     it('calculates the absolute of a positive int', () => {
       expect(abs(1)).toBe(1);
     });
@@ -40,7 +41,7 @@ describe('juiltins', () => {
     });
   })
 
-  describe('any', () => {
+  describe('any()', () => {
     [
       { value: [], expected: false },
       { value: [0], expected: false },
@@ -55,7 +56,7 @@ describe('juiltins', () => {
     })
   });
 
-  describe('all', () => {
+  describe('all()', () => {
     [
       { value: [], expected: true },
       { value: [1], expected: true },
@@ -69,7 +70,7 @@ describe('juiltins', () => {
     })
   });
 
-  describe('divmod', () => {
+  describe('divmod()', () => {
     [
       { a: 0, b: 1, expected: [0, 0] },
       { a: 0, b: 2, expected: [0, 0] },
@@ -106,7 +107,7 @@ describe('juiltins', () => {
     });
   });
 
-  describe('bool', () => {
+  describe('bool()', () => {
     [
       { value: true, expected: true, },
       { value: 1, expected: true, },
@@ -128,7 +129,7 @@ describe('juiltins', () => {
       });
   });
 
-  describe('ord', () => {
+  describe('ord()', () => {
     it('throws TypeError if argument is not a string', () => {
       expect(() => ord({})).toThrow(new TypeError('ord() expected string of length 1, but object found'));
     });
@@ -149,7 +150,7 @@ describe('juiltins', () => {
       expect(ord("a")).toEqual(97);
     })
 
-    it('ord("\n") is 10 (escape sequence)', () => {
+    it('ord("\\n") is 10 (escape sequence)', () => {
       expect(ord("\n")).toEqual(10);
     });
 
@@ -158,7 +159,7 @@ describe('juiltins', () => {
     });
   });
 
-  describe('hex', () => {
+  describe('hex()', () => {
     [
       {number: 0, expected: '0x0'},
       {number: 255, expected: '0xff'},
@@ -190,8 +191,8 @@ describe('juiltins', () => {
     });
   });
 
-  describe('zip', () => {
-    it('zips empty things', () => {
+  describe('zip()', () => {
+    it('zips empty iterables', () => {
       expect([...zip()]).toEqual([]);
       expect([...zip([])]).toEqual([]);
       expect([...zip([], [])]).toEqual([]);
@@ -306,7 +307,7 @@ describe('juiltins', () => {
     });
   });
 
-  describe('type', () => {
+  describe('type()', () => {
     it('returns the constructor of objects', () => {
       // Arrange
       class Thing {
@@ -352,7 +353,7 @@ describe('juiltins', () => {
     });
   });
 
-  describe('chr', () => {
+  describe('chr()', () => {
       it('converts int to char', () => {
         expect(chr(10)).toEqual('\n');
         expect(chr(8364)).toEqual('€');
@@ -380,7 +381,7 @@ describe('juiltins', () => {
       });
   });
 
-  describe('frozenset', () => {
+  describe('frozenset()', () => {
     it('supports read operations', () => {
       // Arrange
       const iterable = [1, 2, 3, 2, 3, 1];
@@ -446,7 +447,7 @@ describe('juiltins', () => {
     });
   });
 
-  describe('issubclass', () => {
+  describe('issubclass()', () => {
     it('checks class hierarchy', () => {
       // Arrange
       class A {}
@@ -485,7 +486,7 @@ describe('juiltins', () => {
     });    
   });
 
-  describe('insinstance', () => {
+  describe('insinstance()', () => {
     it('checks against a single class', () => {
       // Arrange
       class A {}
@@ -589,6 +590,95 @@ describe('juiltins', () => {
 
     it('throws ValueError if step=0', () => {
       expect(() => range(1, 2, 0)).toThrow(new ValueError('range() arg 3 must not be zero'));
+    });
+  });
+
+  describe('len()', () => {
+    it('works with Arrays', () => {
+      expect(len([1, 2, 3])).toEqual(3);
+    });
+
+    it('works with NodeList', () => {
+      // Arrange
+      for (let i = 0; i < 5; i++) {
+        document.body.appendChild(document.createElement('div'));
+      }
+
+      const divs  = document.querySelectorAll('div');
+
+      // Act
+      const length = len(divs);
+
+      // Assert
+      expect(length).toEqual(5);
+    });
+
+    it('works with Sets', () => {
+      expect(len(new Set([1, 2, 3, 4, 5]))).toEqual(5);
+    });
+
+    it('works with FrozenSets', () => {
+      expect(len(frozenset([1, 2, 3, 4, 5]))).toEqual(5);
+    });
+
+    it('works with Maps', () => {
+      expect(len(new Map([["a", 1], ["b", 2], ["c", 3]]))).toEqual(3);
+    });
+
+    it('works with Range', () => {
+      expect(len(range(0, 20, 2))).toEqual(10);
+    });
+
+    it('works with ArrayBuffer', () => {
+      expect(len(new ArrayBuffer(10))).toEqual(10);
+    });
+
+    it('works with Buffer', () => {
+      expect(len(new Buffer(10))).toEqual(10);
+    });
+
+    it('works with Int8Array', () => {
+      expect(len(new Uint8Array([1, 2, 3]))).toEqual(3);
+    });
+
+    it('works with Uint8Array', () => {
+      expect(len(new Uint8Array([1, 2, 3]))).toEqual(3);
+    });
+
+    it('works with Uint8ClampedArray', () => {
+      expect(len(new Uint8Array([1, 2, 3]))).toEqual(3);
+    });
+
+    it('works with Int16Array', () => {
+      expect(len(new Int16Array([1, 2, 3]))).toEqual(3);
+    });
+
+    it('works with Uint16Array', () => {
+      expect(len(new Uint16Array([1, 2, 3]))).toEqual(3);
+    });
+
+    it('works with Int32Array', () => {
+      expect(len(new Int32Array([1, 2, 3]))).toEqual(3);
+    });
+
+    it('works with Uint32Array', () => {
+      expect(len(new Uint32Array([1, 2, 3]))).toEqual(3);
+    });
+
+    it('works with Float32Array', () => {
+      expect(len(new Float32Array([1.2, 23.2, 37.7, 8.2]))).toEqual(4);
+    });
+
+    it('works with Float64Array', () => {
+      expect(len(new Float64Array([1.2, 23.2, 37.7, 8.2, 2 ** 65]))).toEqual(5);
+    });
+
+    it('works with BigInt64Array', () => {
+      expect(len(new BigInt64Array([BigInt(2 ** 128)]))).toEqual(1);
+    });
+
+    it('works with BigUint64Array', () => {
+      expect(len(new BigUint64Array([BigInt(2 ** 127), BigInt(1)]))).toEqual(2);
     });
   });
 });

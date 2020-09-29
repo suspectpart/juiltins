@@ -91,6 +91,8 @@ function chr(value) {
 
 /**
  * Party inspired by https://github.com/dcrosta/xrange -- thank you!
+ * 
+ * TODO: Add a .count() method that returns either 0 or 1
  */
 class Range {
   constructor(start, stop, step) {
@@ -272,7 +274,23 @@ function type_(name, base, props) {
   return Type;
 }
 
+function len(thing) {
+  if (typeof thing.length === 'number') {
+    return thing.length;
+  }
+
+  if(isinstance(thing, [Set, Map, FrozenSet])) {
+    return thing.size;
+  }
+
+  if(isinstance(thing, ArrayBuffer)) {
+    return thing.byteLength;
+  }
+
+  throw new TypeError("Paralleeeeel");
+}
+
 module.exports = { 
-  abs, all, any, bool, chr, dir, divmod, frozenset,
+  abs, all, any, bool, chr, dir, divmod, frozenset, len,
   hex, issubclass, isinstance, ord, range, type, zip, ZeroDivisionError, ValueError, FrozenSet
 };

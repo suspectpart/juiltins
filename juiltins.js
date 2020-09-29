@@ -368,7 +368,7 @@ function int(value, base = 10) {
 
   const int_ =  parseInt(value, base);
 
-  if (Number.isNaN(int_) || Number.isNaN(Number(value))) {
+  if (Number.isNaN(int_)) {
     throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
   }
 

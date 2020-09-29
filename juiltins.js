@@ -65,6 +65,7 @@ class OverflowError extends Error {
 }
 
 class ValueError extends Error {}
+class NotImplementedException extends Error{}
 
 // TODO: return the magnitude if n is a complex number
 function abs(n) {
@@ -303,7 +304,17 @@ function len(thing) {
 /**
  * TODO: Reject anything not string or number
  */
-function int(value, base = 10) {
+function int(value, base) {
+  if (base !== undefined && typeof value !== 'string') {
+    throw new TypeError("int() can't convert non-string with explicit base");
+  }
+
+  base = base || 10;
+
+  if (base === 0) {
+    throw new NotImplementedException('interpretation as a code literal not supported yet');
+  }
+
   if (base < 2 || base > 36) {
     throw new ValueError("int() base must be >= 2 and <= 36");
   }
@@ -322,6 +333,10 @@ function int(value, base = 10) {
 
   if (typeof value === 'boolean') {
     return value + 0;
+  }
+
+  if (typeof value !== 'number' && typeof value !== 'string') {
+    throw new TypeError(`int() argument must be a string, a bytes-like object or a number, not '${typeof value}'`);
   }
 
   if (typeof value === 'string') {
@@ -352,7 +367,6 @@ function int(value, base = 10) {
 
   return result;
 }
-
 
 module.exports = { 
   abs, all, any, bool, chr, dir, divmod, frozenset, hex, int, len,

@@ -707,20 +707,9 @@ describe('juiltins', () => {
   describe('int()', () => {
     it('allows only bases >= 2 and <= 36', () => {
       const error = new ValueError("int() base must be >= 2 and <= 36");
-      expect(() => int(1, -10)).toThrow(error);
-      expect(() => int(1, 0)).toThrow(error);
-      expect(() => int(1, 1)).toThrow(error);
-      expect(() => int(1, 37)).toThrow(error);
-    });
-
-    it('only allows 0x prefix for base 16', () => {
-      expect(int("0x0", 16)).toEqual(0);
-      expect(int("0xaaff", 16)).toEqual(43775);
-      expect(int("-0xaaff", 16)).toEqual(-43775);
-      expect(() => int('0x1', 2)).toThrow(new ValueError("invalid literal for int() with base 2: '0x1'"));
-      expect(() => int('0x1', 10)).toThrow(new ValueError("invalid literal for int() with base 10: '0x1'"));
-      expect(() => int('0x1', 17)).toThrow(new ValueError("invalid literal for int() with base 17: '0x1'"));
-      expect(() => int('0x1', 36)).toThrow(new ValueError("invalid literal for int() with base 36: '0x1'"));
+      expect(() => int("1", -10)).toThrow(error);
+      expect(() => int("1", 1)).toThrow(error);
+      expect(() => int("1", 37)).toThrow(error);
     });
 
     it('returns numbers unchanged', () => {
@@ -754,7 +743,7 @@ describe('juiltins', () => {
     it('rejects binary strings with base != 2', () => {
       expect(() => int('0b1111', 8)).toThrow(new ValueError("invalid literal for int() with base 8: '0b1111'"));
       expect(() => int('0b1111', 16)).toThrow(new ValueError("invalid literal for int() with base 16: '0b1111'"));
-      expect(() => int('0b1111', 36)).toThrow(new ValueError("invalid literal for int() with base 36: '0b1111'"));
+      expect(() => int('-0b1111', 36)).toThrow(new ValueError("invalid literal for int() with base 36: '-0b1111'"));
     })
 
     it('parses octal strings', () => {
@@ -771,7 +760,7 @@ describe('juiltins', () => {
     it('rejects octal strings with base != 8', () => {
       expect(() => int('0o77', 10)).toThrow(new ValueError("invalid literal for int() with base 10: '0o77'"));
       expect(() => int('0o77', 16)).toThrow(new ValueError("invalid literal for int() with base 16: '0o77'"));
-      expect(() => int('0o77', 20)).toThrow(new ValueError("invalid literal for int() with base 20: '0o77'"));
+      expect(() => int('-0o77', 20)).toThrow(new ValueError("invalid literal for int() with base 20: '-0o77'"));
     })
 
     it('parses hex strings', () => {
@@ -788,7 +777,7 @@ describe('juiltins', () => {
     it('rejects hex strings with base != 16', () => {
       expect(() => int('0xff', 2)).toThrow(new ValueError("invalid literal for int() with base 2: '0xff'"));
       expect(() => int('0xff', 10)).toThrow(new ValueError("invalid literal for int() with base 10: '0xff'"));
-      expect(() => int('0xff', 24)).toThrow(new ValueError("invalid literal for int() with base 24: '0xff'"));
+      expect(() => int('-0xff', 24)).toThrow(new ValueError("invalid literal for int() with base 24: '-0xff'"));
     });
 
     it('works with all bases >= 2 and <= 36', () => {
@@ -803,7 +792,7 @@ describe('juiltins', () => {
       expect(int("xyzabc", 36)).toEqual(2054137080);
     });
 
-    it('fails when digit is not available in a particular base', () => {
+    it('fails when string does not conform to base', () => {
       expect(() => int("99", 5)).toThrow(new ValueError("invalid literal for int() with base 5: '99'"));
       expect(() => int("zz", 20)).toThrow(new ValueError("invalid literal for int() with base 20: 'zz'"));
     });
@@ -822,6 +811,7 @@ describe('juiltins', () => {
     });
 
     it('fails to parse malformed base 10 strings', () => {
+      expect(() => int('')).toThrow(ValueError);
       expect(() => int('test')).toThrow(ValueError);
       expect(() => int('0b11100')).toThrow(ValueError);
       expect(() => int('0x11100')).toThrow(ValueError);
@@ -844,14 +834,22 @@ describe('juiltins', () => {
       expect(int("0")).toEqual(0);
       expect(int("012345")).toEqual(12345);
       expect(int("0000000012345")).toEqual(12345);
-    })
+    });
+
+    it('rejects any types that are not suppprted', () => {
+      expect(() => int({})).toThrow(new TypeError("int() argument must be a string, a bytes-like object or a number, not 'object'"));
+      expect(() => int(new Date())).toThrow(new TypeError("int() argument must be a string, a bytes-like object or a number, not 'object'"));
+      expect(() => int(null)).toThrow(new TypeError("int() argument must be a string, a bytes-like object or a number, not 'object'"));
+      expect(() => int(undefined)).toThrow(new TypeError("int() argument must be a string, a bytes-like object or a number, not 'undefined'"));
+      expect(() => int(() => {})).toThrow(new TypeError("int() argument must be a string, a bytes-like object or a number, not 'function'"));
+    });
 
     // Remove parseInt's behavior of partially parsing a string that contains gargabe in the end
-    it.skip('only parses when the whole string can be parsed', () => {
+    it.skip('doesn\'t do crappy parseInt()-style partial parsing', () => {
       expect(() => int('12345blablabla')).toThrow(ValueError);
     });
 
-    it.skip('test for anything not a number or string (object, function, date, null, undefined...)', () => {
+    it.skip('supports base=0 (interpret exactly as a code literal)', () => {
       expect.fail('not implemented');
     });
   });

@@ -307,36 +307,6 @@ function int(value, base = 10) {
   if (base < 2 || base > 36) {
     throw new ValueError("int() base must be >= 2 and <= 36");
   }
-  
-  if (typeof value === 'boolean') {
-    return value + 0;
-  }
-
-  if (typeof value === 'string') {
-    value = value.trim().toLowerCase();
-    let sign = 1;
-    let unsigned = value;
-
-    if (value.startsWith('-')) {
-      unsigned = value.slice(1);
-      sign = -1;
-    }
-
-    const literal = (expectedBase) => {
-      return (n, base, sign) => {
-        let result;
-        if (base !== expectedBase || Number.isNaN(result = Number(n))) {
-          throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
-        }
-  
-        return result * sign;
-      }
-    }
-
-    if (unsigned.startsWith('0b')) return literal(2)(unsigned, base, sign);
-    if (unsigned.startsWith('0o')) return literal(8)(unsigned, base, sign);
-    if (unsigned.startsWith('0x')) return literal(16)(unsigned, base, sign);
-  }
 
   if (Number.isInteger(value)) {
     return value;
@@ -350,13 +320,37 @@ function int(value, base = 10) {
     throw new ValueError('cannot convert float NaN to integer');
   }
 
-  const int_ =  parseInt(value, base);
+  if (typeof value === 'boolean') {
+    return value + 0;
+  }
 
-  if (Number.isNaN(int_)) {
+  if (typeof value === 'string') {
+    value = value.trim().toLowerCase();
+
+    const unsigned = (str) => str.startsWith('-') ? str.slice(1) : str; 
+    const sign = (str) => str.startsWith('-') ? -1 : 1;
+
+    const literal = (value, base, targetBase) => {
+      let result;
+      if (base !== targetBase || Number.isNaN(result = Number(unsigned(value)))) {
+        throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
+      }
+
+      return result * sign(value);
+    }
+
+    if (unsigned(value).startsWith('0b')) return literal(value, base, 2);
+    if (unsigned(value).startsWith('0o')) return literal(value, base, 8);
+    if (unsigned(value).startsWith('0x')) return literal(value, base, 16);
+  }
+
+  const result =  parseInt(value, base);
+
+  if (Number.isNaN(result)) {
     throw new ValueError(`invalid literal for int() with base ${base}: '${value}'`);
   }
 
-  return int_;
+  return result;
 }
 
 

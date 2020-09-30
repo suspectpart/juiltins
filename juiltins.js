@@ -121,14 +121,14 @@ class Range {
     Object.freeze(this);
   }
 
-  count(n) {
-    const diff = n - this.start;
-    const [ quotient, remainder ] = divmod(diff, this.step);
-    if (remainder == 0 && quotient >= 0 && quotient < this.length) {
-      return 1;
-    }
+  /**
+   * return number of occurrences of value
+   * @param {number} value
+   */
+  count(value) {
+    const [ q, r ] = divmod(value - this.start, this.step);
 
-    return 0;
+    return int(r == 0 && q >= 0 && q < len(this));
   }
 
   *[Symbol.iterator] () {

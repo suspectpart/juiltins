@@ -303,10 +303,7 @@ function len(thing) {
   throw new TypeError(`object of type '${typeof thing}' has no len()`);
 }
 
-/**
- * TODO: Reject anything not string or number
- */
-function int(value, base) {
+  function int(value, base) {
   if (base !== undefined && typeof value !== 'string') {
     throw new TypeError("int() can't convert non-string with explicit base");
   }
@@ -377,8 +374,18 @@ function iter(iterable) {
   return iterable[__iter__]();
 }
 
+function sum(iterable, start=0) {
+  let result = start;
+  
+  for (let n of iterable) {
+    result += n;
+  }
+
+  return result;
+}
+
 module.exports = { 
   abs, all, any, bool, chr, dir, divmod, frozenset, hex, int, len,
-  issubclass, isinstance, ord, range, type, zip, iter,
+  issubclass, isinstance, ord, range, type, zip, iter, sum,
   ValueError, ZeroDivisionError, OverflowError, FrozenSet, __iter__
 };

@@ -14,6 +14,7 @@ const {
   len,
   ord,
   range,
+  sum,
   type,
   zip,
   OverflowError,
@@ -915,6 +916,31 @@ describe('juiltins', () => {
   
         // Assert
         expect([...iterator]).toEqual([1, 2, 3]);
+    });
+  });
+
+  describe('sum()', () => {
+    it('sums up values in an Array', () => {
+      expect(sum([1, 2, 3])).toEqual(6);
+      expect(sum([1, 2, 3], 10)).toEqual(16);
+    });
+
+    it('sums up values in an iterable', () => {
+      // Arrange
+      function* iterable() { 
+        yield 10;
+        yield 20;
+      }
+
+      // Act
+      const iterator = iterable();
+
+      // Assert
+      expect(sum(iterator)).toEqual(30);
+    });
+
+    it('sums up a range', () => {
+      expect(sum(range(0, 10, 2))).toEqual(2 + 4 + 6 + 8);
     });
   });
 });

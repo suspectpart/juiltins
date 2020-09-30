@@ -3,6 +3,7 @@ const {
   all,
   any,
   bool,
+  callable,
   chr,
   divmod,
   frozenset,
@@ -941,6 +942,30 @@ describe('juiltins', () => {
 
     it('sums up a range', () => {
       expect(sum(range(0, 10, 2))).toEqual(2 + 4 + 6 + 8);
+    });
+  });
+
+  describe('callable()', () => {
+    it('figures functions are callable', () => {
+      function callMe() {}
+
+      expect(callable(callMe)).toBe(true);
+    });
+
+    it('figures classes are callable', () => {
+      /* fun fact: classes ARE functions, but they are not callable without the new keyword. */
+      class Stub {}
+
+      expect(callable(Stub)).toBe(true);
+    });
+
+    it('figure all other types or values to be non-callable', () => {
+      expect(callable(null)).toBe(false);
+      expect(callable(undefined)).toBe(false);
+      expect(callable({})).toBe(false);
+      expect(callable(1)).toBe(false);
+      expect(callable(true)).toBe(false);
+      expect(callable("tets")).toBe(false);
     });
   });
 });

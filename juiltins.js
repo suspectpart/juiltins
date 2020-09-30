@@ -200,7 +200,7 @@ function ord(char) {
   // We can not use char.length as JavaScript may report a length > 1 
   // if a Unicode character is made up of more than one code unit.
   // Spreading string characters into an Array helps counting them properly.
-  const length = [...char].length;
+  const length = list(char).length;
 
   if (length !== 1){
     throw new TypeError(`ord() expected a character, but string of length ${length} found`);

@@ -14,6 +14,7 @@ const {
   isinstance,
   iter,
   len,
+  list,
   ord,
   range,
   sum,
@@ -908,6 +909,13 @@ describe('juiltins', () => {
       expect([...iterator]).toEqual([1, 2, 3]);
     });
 
+    it('fails if value is not iterable', () => {
+      expect(() => iter({})).toThrow(new TypeError("'object' object is not iterable"));
+      expect(() => iter(5)).toThrow(new TypeError("'number' object is not iterable"));
+      expect(() => iter(undefined)).toThrow(new TypeError("'undefined' object is not iterable"));
+      expect(() => iter(null)).toThrow(new TypeError("'object' object is not iterable"));
+    });
+
     it('works on Arrays', () => {
       // Arrange
       const arr = [1, 2, 3];
@@ -1053,7 +1061,7 @@ describe('juiltins', () => {
       expect([...enumerate(iterable)]).toEqual(expected);
     });
 
-    it('accepts a start offset', () => {
+    it('accepts a positive start offset', () => {
       // Arrange
       const array = ["a", "b", "c"];
       const start = 100;
@@ -1064,6 +1072,60 @@ describe('juiltins', () => {
 
       // Assert
       expect([...enumerated]).toEqual(expected);
+    });
+
+    it('accepts a negative start offset', () => {
+      // Arrange
+      const array = ["a", "b", "c"];
+      const start = -1;
+      const expected = [[-1, "a"], [0, "b"], [1, "c"]];
+
+      // Act
+      const enumerated = enumerate(array, start);
+
+      // Assert
+      expect([...enumerated]).toEqual(expected);
+    });
+  });
+
+  describe('list()', () => {
+    it('transforms Arrays', () => {
+        expect(list([1, 2, 3])).toEqual([1, 2, 3]);
+    });
+
+    it('transforms generators', () => {
+      function* generator() {
+        yield "a";
+        yield "b";
+        yield "c";
+      }
+
+      expect(list(generator())).toEqual(["a", "b", "c"]);
+    });
+
+    it('transforms ranges', () => {
+      expect(list(range(0, 10, 2))).toEqual([0, 2, 4, 6, 8]);
+    });
+
+    it('transforms FrozenSets', () => {
+      expect(list(frozenset([0, 10, 2]))).toEqual([0, 10, 2]);
+    });
+
+    it('transforms Sets', () => {
+      expect(list(new Set([0, 10, 2]))).toEqual([0, 10, 2]);
+    });
+
+    it('transforms Maps', () => {
+      expect(list(new Map([["a", 0], ["b", 2]]))).toEqual([["a", 0], ["b", 2]]);
+    });
+
+    it('fails if value is not iterable', () => {
+      expect(() => list(1)).toThrow(new TypeError("'number' object is not iterable"));
+      expect(() => list({})).toThrow(TypeError);
+      expect(() => list(null)).toThrow(TypeError);
+      expect(() => list(undefined)).toThrow(TypeError);
+      expect(() => list(false)).toThrow(TypeError);
+      expect(() => list(() => {})).toThrow(TypeError);
     });
   });
 });

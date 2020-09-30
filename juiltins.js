@@ -381,6 +381,10 @@ function len(thing) {
  * TODO: What about the sentinel?
  */
 function iter(iterable) {
+  if(!iterable || !iterable[__iter__]) {
+    throw new TypeError(`'${typeof iterable}' object is not iterable`);
+  }
+
   return iterable[__iter__]();
 }
 
@@ -404,9 +408,13 @@ function* enumerate(iterable, start=0) {
   for ([i, value] of zip(counter(), iterable)) yield [i, value];
 }
 
+function list(iterable) {
+  return [...iter(iterable)];
+}
+
 module.exports = { 
   abs, all, any, bool, callable, chr, dir, divmod, enumerate, 
-  frozenset, hex, int, iter, issubclass, isinstance, len, ord, 
-  range, sum, type, zip,
+  frozenset, hex, int, iter, issubclass, isinstance, 
+  len, list, ord, range, sum, type, zip,
   ValueError, ZeroDivisionError, OverflowError, FrozenSet, __iter__
 };

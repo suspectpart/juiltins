@@ -938,6 +938,17 @@ describe('juiltins', () => {
       expect([...iterator]).toEqual([1]);
     });
 
+    it('works on strings', () => {
+      // Arrange
+      const string = "hallo";
+
+      // Act
+      const iterator = iter(string);
+
+      // Assert
+      expect([...iterator]).toEqual(['h', 'a', 'l', 'l', 'o']);
+    });
+
     it('aliases Symbol.iterator to __iter__', () => {
          // Arrange
          class Stub {
@@ -1061,6 +1072,17 @@ describe('juiltins', () => {
       expect([...enumerate(iterable)]).toEqual(expected);
     });
 
+    it('enumerates strings', () => {
+      // Arrange
+      const string = "hallo";
+      const expected = [[0, 'h'], [1, 'a'], [2, 'l'], [3, 'l'], [4, 'o']];
+
+      // Act
+      const chars = enumerate(string);
+
+      expect([...chars]).toEqual(expected);
+    });
+
     it('accepts a positive start offset', () => {
       // Arrange
       const array = ["a", "b", "c"];
@@ -1103,8 +1125,12 @@ describe('juiltins', () => {
       expect(list(generator())).toEqual(["a", "b", "c"]);
     });
 
-    it('transforms ranges', () => {
+    it('transforms Ranges', () => {
       expect(list(range(0, 10, 2))).toEqual([0, 2, 4, 6, 8]);
+    });
+
+    it('transforms Strings', () => {
+      expect(list("hallo")).toEqual(['h', 'a', 'l', 'l', 'o']);
     });
 
     it('transforms FrozenSets', () => {

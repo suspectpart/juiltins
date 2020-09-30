@@ -547,6 +547,35 @@ describe('juiltins', () => {
       expect(range(0, 100, -2).length).toEqual(0);
     });
 
+    it('counts elements', () => {
+      // no step
+      expect(range(0, 100).count(-1)).toEqual(0);
+      expect(range(0, 100).count(0)).toEqual(1);
+      expect(range(0, 100).count(1)).toEqual(1);
+      expect(range(0, 100).count(99)).toEqual(1);
+      expect(range(0, 100).count(100)).toEqual(0);
+
+      // even step
+      expect(range(0, 100, 2).count(1)).toEqual(0);
+      expect(range(0, 100, 2).count(2)).toEqual(1);
+      expect(range(0, 100, 2).count(98)).toEqual(1);
+      expect(range(0, 100, 2).count(99)).toEqual(0);
+
+      // odd step
+      expect(range(0, 100, 3).count(0)).toEqual(1);
+      expect(range(0, 100, 3).count(1)).toEqual(0);
+      expect(range(0, 100, 3).count(2)).toEqual(0);
+      expect(range(0, 100, 3).count(3)).toEqual(1);
+
+      // negative step
+      expect(range(15, -15, -3).count(15)).toEqual(1);
+      expect(range(15, -15, -3).count(14)).toEqual(0);
+      expect(range(15, -15, -3).count(13)).toEqual(0);
+      expect(range(15, -15, -3).count(12)).toEqual(1);
+      expect(range(15, -15, -3).count(0)).toEqual(1);
+      expect(range(15, -15, -3).count(-3)).toEqual(1);
+    });
+
     it('keeps start, stop and step immutable', () => {
       // Arrange
       const myRange = range(1, 10, 2);
@@ -965,7 +994,7 @@ describe('juiltins', () => {
       expect(callable({})).toBe(false);
       expect(callable(1)).toBe(false);
       expect(callable(true)).toBe(false);
-      expect(callable("tets")).toBe(false);
+      expect(callable("test")).toBe(false);
     });
   });
 });

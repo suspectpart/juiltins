@@ -121,6 +121,16 @@ class Range {
     Object.freeze(this);
   }
 
+  count(n) {
+    const diff = n - this.start;
+    const [ quotient, remainder ] = divmod(diff, this.step);
+    if (remainder == 0 && quotient >= 0 && quotient < this.length) {
+      return 1;
+    }
+
+    return 0;
+  }
+
   *[Symbol.iterator] () {
     let last = this.start;
     let count = 0

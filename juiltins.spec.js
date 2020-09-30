@@ -6,6 +6,7 @@ const {
   callable,
   chr,
   divmod,
+  enumerate,
   frozenset,
   hex,
   int,
@@ -995,6 +996,74 @@ describe('juiltins', () => {
       expect(callable(1)).toBe(false);
       expect(callable(true)).toBe(false);
       expect(callable("test")).toBe(false);
+    });
+  });
+
+  describe('enumerate()', () => {
+    it('enumerates Arrays', () => {
+      // Arrange
+      const array = ["a", "b", "c", 0xd, 0xe];
+      const expected = [[0, "a"], [1, "b"], [2, "c"], [3, 0xd], [4, 0xe]];
+
+      // Act + Assert
+      expect([...enumerate(array)]).toEqual(expected);
+    });
+
+    it('enumerates Sets', () => {
+      // Arrange
+      const set = new Set([10, 5, 20, -100]);
+      const expected = [[0, 10], [1, 5], [2, 20], [3, -100]];
+
+      // Act + Assert
+      expect([...enumerate(set)]).toEqual(expected);
+    });
+
+    it('enumerates FrozenSets', () => {
+      // Arrange
+      const set = frozenset([10, 5, 20, -100]);
+      const expected = [[0, 10], [1, 5], [2, 20], [3, -100]];
+
+      // Act + Assert
+      expect([...enumerate(set)]).toEqual(expected);
+    });
+
+    it('enumerates Maps', () => {
+      // Arrange
+      const map = [["c", 10], ["a", 80], ["d", 13]];
+      const expected = [[0, ["c", 10]], [1, ["a", 80]], [2, ["d", 13]]];
+
+      // Act + Assert
+      expect([...enumerate(map)]).toEqual(expected);
+    });
+
+    it('enumerates Iterables', () => {
+      // Arrange
+      class Iterable {
+        *[Symbol.iterator]() {
+          yield null;
+          yield undefined;
+          yield -Infinity;
+        }
+      }
+
+      const iterable = new Iterable();
+      const expected = [[0, null], [1, undefined], [2, -Infinity]];
+
+      // Act + Assert
+      expect([...enumerate(iterable)]).toEqual(expected);
+    });
+
+    it('accepts a start offset', () => {
+      // Arrange
+      const array = ["a", "b", "c"];
+      const start = 100;
+      const expected = [[100, "a"], [101, "b"], [102, "c"]];
+
+      // Act
+      const enumerated = enumerate(array, start);
+
+      // Assert
+      expect([...enumerated]).toEqual(expected);
     });
   });
 });

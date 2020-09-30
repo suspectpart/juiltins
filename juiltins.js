@@ -398,8 +398,15 @@ function callable(obj) {
   return typeof obj === 'function';
 }
 
+function* enumerate(iterable, start=0) {
+  function* counter() {while(true) yield start++;}
+
+  for ([i, value] of zip(counter(), iterable)) yield [i, value];
+}
+
 module.exports = { 
-  abs, all, any, bool, callable, chr, dir, divmod, frozenset, hex, int, iter,
-  issubclass, isinstance, len, ord, range, sum, type, zip,
+  abs, all, any, bool, callable, chr, dir, divmod, enumerate, 
+  frozenset, hex, int, iter, issubclass, isinstance, len, ord, 
+  range, sum, type, zip,
   ValueError, ZeroDivisionError, OverflowError, FrozenSet, __iter__
 };

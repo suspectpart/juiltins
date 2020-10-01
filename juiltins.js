@@ -426,9 +426,13 @@ function list(iterable) {
   return [...iter(iterable)];
 }
 
+function input(message) {
+  return window.prompt(message);
+}
+
 module.exports = { 
   abs, all, any, bin, bool, callable, chr, dir, divmod, enumerate, 
-  frozenset, hex, int, iter, issubclass, isinstance, 
+  frozenset, hex, input, int, iter, issubclass, isinstance, 
   len, list, oct, ord, range, sum, type, zip,
   ValueError, ZeroDivisionError, OverflowError, FrozenSet, __iter__
 };

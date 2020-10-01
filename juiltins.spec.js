@@ -10,6 +10,7 @@ const {
   enumerate,
   frozenset,
   hex,
+  input,
   int,
   issubclass,
   isinstance,
@@ -1219,6 +1220,14 @@ describe('juiltins', () => {
       expect(() => list(undefined)).toThrow(TypeError);
       expect(() => list(false)).toThrow(TypeError);
       expect(() => list(() => {})).toThrow(TypeError);
+    });
+  });
+
+  describe('input()', () => {
+    beforeEach(() => window.prompt = (text) => text);
+
+    it('reads text from prompt', () => {
+      expect(input("hi")).toEqual("hi");
     });
   });
 });

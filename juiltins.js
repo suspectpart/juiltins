@@ -213,22 +213,36 @@ function frozenset(iterable) {
   return new FrozenSet(iterable);
 }
 
-function hex(n) {
-  if (arguments.length !== 1) {
-    throw new TypeError(`hex() takes exactly one argument (${arguments.length} given)`);
-  }
-
-  const type = typeof n;
-
-  if (type !== "number") {
-    if (n.__index__ && typeof n.__index__ === 'function') {
-      n = n.__index__();
-    } else {
-      throw new TypeError(`'${type}' object cannot be interpreted as an integer`);
+function __represent(base, prefix, name) {
+  return function(n) {
+    if (arguments.length !== 1) {
+      throw new TypeError(`${name}() takes exactly one argument (${arguments.length} given)`);
     }
+  
+    const type = typeof n;
+  
+    if (type !== "number") {
+      if (n.__index__ && typeof n.__index__ === 'function') {
+        n = n.__index__();
+      } else {
+        throw new TypeError(`'${type}' object cannot be interpreted as an integer`);
+      }
+    }
+  
+    return `${n < 0 ? '-' : ''}0${prefix}${n.toString(base).slice(n < 0)}`;
   }
+}
 
-  return `${n < 0 ? '-' : ''}0x${n.toString(16).slice(n < 0)}`;
+function bin(n) {
+  return  __represent(2, 'b', "bin")(n);
+}
+
+function oct(n) {
+  return  __represent(8, 'o', "oct")(n);
+}
+
+function hex(n) {
+  return  __represent(16, 'x', "hex")(n);
 }
 
 function* zip(...iterables) {
@@ -413,8 +427,8 @@ function list(iterable) {
 }
 
 module.exports = { 
-  abs, all, any, bool, callable, chr, dir, divmod, enumerate, 
+  abs, all, any, bin, bool, callable, chr, dir, divmod, enumerate, 
   frozenset, hex, int, iter, issubclass, isinstance, 
-  len, list, ord, range, sum, type, zip,
+  len, list, oct, ord, range, sum, type, zip,
   ValueError, ZeroDivisionError, OverflowError, FrozenSet, __iter__
 };

@@ -2,6 +2,7 @@ const {
   abs,
   all,
   any,
+  bin,
   bool,
   callable,
   chr,
@@ -15,6 +16,7 @@ const {
   iter,
   len,
   list,
+  oct,
   ord,
   range,
   sum,
@@ -198,6 +200,71 @@ describe('juiltins', () => {
       expect(() => hex(true)).toThrow(new TypeError("'boolean' object cannot be interpreted as an integer"));
     });
   });
+
+  describe('oct()', () => {
+    [
+      {number: 0, expected: '0o0'},
+      {number: 255, expected: '0o377'},
+      {number: -42, expected: '-0o52'},
+      {number: 2 ** 32 + 1, expected: '0o40000000001'},
+    ].forEach(({ number, expected }) => {
+      it(`oct(${number}) is ${expected}`, () => {
+        expect(oct(number)).toEqual(expected);
+      });
+    });
+
+    it('tries to call __index__ on objects', () => {
+      // Arrange
+      const object = {
+        __index__: () => 32
+      };
+
+      const expected = '0o40';
+
+      // Act
+      const actual = oct(object);
+
+      // Assert
+      expect(actual).toEqual(expected);
+    });
+
+    it('throws TypeError if value is neither a number nor has an __index__ on object', () => {
+      expect(() => oct(true)).toThrow(new TypeError("'boolean' object cannot be interpreted as an integer"));
+    });
+  });
+
+  describe('bin()', () => {
+    [
+      {number: 0, expected: '0b0'},
+      {number: 255, expected: '0b11111111'},
+      {number: -42, expected: '-0b101010'},
+      {number: 2 ** 32 + 1, expected: '0b100000000000000000000000000000001'},
+    ].forEach(({ number, expected }) => {
+      it(`bin(${number}) is ${expected}`, () => {
+        expect(bin(number)).toEqual(expected);
+      });
+    });
+
+    it('tries to call __index__ on objects', () => {
+      // Arrange
+      const object = {
+        __index__: () => 32
+      };
+
+      const expected = '0b100000';
+
+      // Act
+      const actual = bin(object);
+
+      // Assert
+      expect(actual).toEqual(expected);
+    });
+
+    it('throws TypeError if value is neither a number nor has an __index__ on object', () => {
+      expect(() => bin(true)).toThrow(new TypeError("'boolean' object cannot be interpreted as an integer"));
+    });
+  });
+
 
   describe('zip()', () => {
     it('zips empty iterables', () => {

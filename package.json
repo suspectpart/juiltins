@@ -2,9 +2,13 @@
   "name": "juiltins",
   "version": "1.0.0",
   "description": "Python Built-Ins for JavaScript",
-  "main": "juiltins.js",
+  "main": "./src/juiltins.js",
+  "type":"commonjs",
   "scripts": {
-    "test": "jest juiltins.spec.js"
+    "test": "jest ./src/juiltins.spec.js",
+    "build": "webpack",
+    "build:watch": "webpack --watch",
+    "clean": "rimraf ./dist/"
   },
   "keywords": [
     "Python"
@@ -12,6 +16,9 @@
   "author": "Horst Schneider",
   "license": "MIT",
   "devDependencies": {
-    "jest": "^26.4.2"
+    "jest": "^26.4.2",
+    "rimraf": "^3.0.2",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12"
   }
 }

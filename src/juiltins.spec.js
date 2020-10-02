@@ -1230,4 +1230,8 @@ describe('juiltins', () => {
       expect(input("hi")).toEqual("hi");
     });
   });
+
+  describe('open()', () => {
+    
+  });
 });

@@ -1,4 +1,4 @@
-__iter__ = Symbol.iterator;
+const __iter__ = Symbol.iterator;
 
 /**
  * JavaScript-Lol: The modulo bug.
@@ -129,6 +129,10 @@ class Range {
     const [ q, r ] = divmod(value - this.start, this.step);
 
     return int(r == 0 && q >= 0 && q < len(this));
+  }
+
+  get [Symbol.toStringTag]() {
+    return "range"
   }
 
   *[Symbol.iterator] () {

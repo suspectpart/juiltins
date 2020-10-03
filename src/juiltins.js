@@ -57,17 +57,30 @@ class FrozenSet {
 class ZeroDivisionError extends Error {
   constructor() {
     super('integer division or modulo by zero');
+    this.name = "ZeroDivisionError";
   }
 }
 
 class OverflowError extends Error {
   constructor() {
     super('cannot convert float infinity to integer');
+    this.name = "OverflowError";
   }
 }
 
-class ValueError extends Error {}
-class NotImplementedException extends Error{}
+class ValueError extends Error {
+  constructor(msg) {
+    super(msg);
+    this.name = "ValueError";
+  }
+}
+
+class NotImplementedException extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "NotImplementedException";
+  }
+}
 
 // TODO: return the magnitude if n is a complex number
 function abs(n) {
@@ -432,9 +445,75 @@ function input(message) {
   return window.prompt(message);
 }
 
+const first = (set) => [... set].shift()
+const intersect = (s1, s2) => new Set([...s1].filter(i => s2.has(i)));
+const union = (...sets) => sets.reduce((s, acc) => new Set([...s, ...acc]))
+const equal = (s1, s2) => (s1.size === s2.size) && [...s1].every( value => s2.has(value));
+
+class TextIOWrapper {
+  constructor(path, mode, fs = localStorage) {
+    const _mode = new Set(mode);
+    const rwax = new Set("rwax");
+    const u = new Set("+");
+    const tb = new Set("tb");
+
+    if(mode.length < 1 || mode.length > 3 || _mode.size != mode.length) { 
+      throw new ValueError(`Invalid mode: '${mode}'`);
+    }
+
+    // disallowed chars
+    if (!equal(intersect(union(rwax, u, tb), _mode), _mode)) {
+      throw new ValueError(`Invalid mode: '${mode}'`);
+    }
+
+    if(intersect(tb, _mode).size > 1) {
+      throw new ValueError("can't have text and binary mode at once");
+    }
+
+    if(intersect(rwax, _mode).size > 1) {
+      throw new ValueError("Must have exactly one of create/read/write/append mode");
+    }
+
+    if(intersect(rwax, _mode).size === 0) {
+      throw new ValueError("Must have exactly one of create/read/write/append mode and at most one plus");
+    }
+    
+    const update = bool(first(intersect(u, _mode)));
+    const readOrWrite = first(intersect(rwax, _mode));
+    const textOrBinary = first(intersect(tb, _mode));
+
+    this.path = path;
+    this.mode = mode;
+    this.readable = (readOrWrite === "r") || update;
+    this.writable = (readOrWrite !== "r") || update;
+    this.text = textOrBinary === undefined || textOrBinary == "t";
+    this._fs = fs;
+  }
+
+  write(string) {
+    this._fs.setItem(this.path, string);
+
+    return string.length;
+  }
+
+  read() {
+    const text = this._fs.getItem(this.path);
+
+    if (text === null) {
+      throw new Error("File not there");
+    }
+
+    return text;
+  }
+} 
+
+function open_(path, mode) {
+  return new TextIOWrapper(path, mode);
+}
+
 module.exports = { 
   abs, all, any, bin, bool, callable, chr, dir, divmod, enumerate, 
   frozenset, hex, input, int, iter, issubclass, isinstance, 
-  len, list, oct, ord, range, sum, type, zip,
+  len, list, oct, open_, ord, range, sum, type, zip, TextIOWrapper,
   ValueError, ZeroDivisionError, OverflowError, FrozenSet, __iter__
 };

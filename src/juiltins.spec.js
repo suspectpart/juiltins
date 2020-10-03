@@ -18,11 +18,13 @@ const {
   len,
   list,
   oct,
+  open_,
   ord,
   range,
   sum,
   type,
   zip,
+  TextIOWrapper,
   OverflowError,
   ZeroDivisionError,
   ValueError,
@@ -1334,54 +1336,11 @@ describe('juiltins', () => {
         
         // Assert
         expect(() => new TextIOWrapper("path", mode)).toThrow(expected);
-      });  
+      });
+    });
+
+    it('defaults to text mode', () => {
+      expect(open_("/tmp/file", "r").text).toEqual(true);
     });
   });
 });
-
-
-const first = (set) => [... set].shift()
-const intersect = (s1, s2) => new Set([...s1].filter(i => s2.has(i)));
-const union = (...sets) => sets.reduce((s, acc) => new Set([...s, ...acc]))
-const equal = (s1, s2) => (s1.size === s2.size) && [...s1].every( value => s2.has(value));
-
-class TextIOWrapper {
-  constructor(path, mode, fs = localStorage) {
-    const _mode = new Set(mode);
-    const rwax = new Set("rwax");
-    const u = new Set("+");
-    const tb = new Set("tb");
-
-    if(mode.length < 1 || mode.length > 3 || _mode.size != mode.length) { 
-      throw new ValueError(`Invalid mode: '${mode}'`);
-    }
-
-    // disallowed chars
-    if (!equal(intersect(union(rwax, u, tb), _mode), _mode)) {
-      throw new ValueError(`Invalid mode: '${mode}'`);
-    }
-
-    if(intersect(tb, _mode).size > 1) {
-      throw new ValueError("can't have text and binary mode at once");
-    }
-
-    if(intersect(rwax, _mode).size > 1) {
-      throw new ValueError("Must have exactly one of create/read/write/append mode");
-    }
-
-    if(intersect(rwax, _mode).size === 0) {
-      throw new ValueError("Must have exactly one of create/read/write/append mode and at most one plus");
-    }
-    
-    const update = bool(first(intersect(u, _mode)));
-    const readOrWrite = first(intersect(rwax, _mode));
-    const textOrBinary = first(intersect(tb, _mode));
-
-    this.path = path;
-    this.mode = mode;
-    this.readable = (readOrWrite === "r") || update;
-    this.writable = (readOrWrite !== "r") || update;
-    this.text = textOrBinary == "t";
-    this._fs = fs;
-  }
-}

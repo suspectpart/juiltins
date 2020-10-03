@@ -100,8 +100,6 @@ function chr(value) {
 
 /**
  * Party inspired by https://github.com/dcrosta/xrange -- thank you!
- * 
- * TODO: Add a .count() method that returns either 0 or 1
  */
 class Range {
   constructor(start, stop, step) {

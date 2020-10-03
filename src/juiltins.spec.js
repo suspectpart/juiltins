@@ -1289,7 +1289,7 @@ describe('juiltins', () => {
       'wwww',
       'hallo'
     ].forEach((mode) => {
-      it(`rejects mode ${mode}`, () => {
+      it(`rejects invalid mode ${mode}`, () => {
         expect(() => new TextIOWrapper("/tmp", mode)).toThrow(new ValueError(`Invalid mode: '${mode}'`));
       });
     });
@@ -1298,36 +1298,43 @@ describe('juiltins', () => {
       expect(() => new TextIOWrapper("path", "rtb")).toThrow(new ValueError('can\'t have text and binary mode at once'));
     });
 
-    // TODO: make this loop
-    it('rejects setting multiple read/write/append/create', () => {
-      // Arrange
-      const expected = new ValueError("Must have exactly one of create/read/write/append mode");
-      
-      // Assert
-      expect(() => new TextIOWrapper("path", "rax")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "axr")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "xar")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "xaw")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "wax")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "rwt")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "wbr")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "rwx")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "+aw")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "xa+")).toThrow(expected);
+    [
+      "rax",
+      "axr",
+      "xar",
+      "xaw",
+      "wax",
+      "rwt",
+      "wbr",
+      "rwx",
+      "+aw",
+      "xa+",
+    ].forEach(mode => {
+      it(`rejects mode ${mode} (ambiguous read/write/append/create)`, () => {
+        // Arrange
+        const expected = new ValueError("Must have exactly one of create/read/write/append mode");
+        
+        // Assert
+        expect(() => new TextIOWrapper("path", mode)).toThrow(expected);
+      });
     });
-
-    it('rejects setting no read/write/append/create', () => {
-      // Arrange
-      const expected = new ValueError("Must have exactly one of create/read/write/append mode and at most one plus");
-      
-      // Assert
-      expect(() => new TextIOWrapper("path", "+")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "b")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "t")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "t+")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "+t")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "+b")).toThrow(expected);
-      expect(() => new TextIOWrapper("path", "+b")).toThrow(expected);
+    
+    [
+      "+",
+      "b",
+      "t",
+      "t+",
+      "+t",
+      "b+",
+      "+b"
+    ].forEach(mode => {
+      it(`rejects mode ${mode} (missing read/write/append/create)`, () => {
+        // Arrange
+        const expected = new ValueError("Must have exactly one of create/read/write/append mode and at most one plus");
+        
+        // Assert
+        expect(() => new TextIOWrapper("path", mode)).toThrow(expected);
+      });  
     });
   });
 });
@@ -1366,15 +1373,15 @@ class TextIOWrapper {
       throw new ValueError("Must have exactly one of create/read/write/append mode and at most one plus");
     }
     
-    const _u = bool(first(intersect(u, _mode)));
-    const _rwax = first(intersect(rwax, _mode));
-    const _tb = first(intersect(tb, _mode));
+    const update = bool(first(intersect(u, _mode)));
+    const readOrWrite = first(intersect(rwax, _mode));
+    const textOrBinary = first(intersect(tb, _mode));
 
     this.path = path;
     this.mode = mode;
-    this.readable = _rwax === "r" || _u;
-    this.writable = _rwax !== "r" || _u;
-    this.text = _tb == "t" ? true : false;
+    this.readable = (readOrWrite === "r") || update;
+    this.writable = (readOrWrite !== "r") || update;
+    this.text = textOrBinary == "t";
     this._fs = fs;
   }
 }

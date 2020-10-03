@@ -1231,7 +1231,105 @@ describe('juiltins', () => {
     });
   });
 
-  describe('open()', () => {
-    
+  describe('TextIOWrapper', () => {
+    beforeEach(() => localStorage.clear());
+    afterEach(() => localStorage.clear());
+
+    [
+      { mode: 'r', readable: true, writable: false, text: true },
+      { mode: 'w', readable: false, writable: true, text: true },
+      { mode: 'a', readable: false, writable: true, text: true },
+      { mode: 'x', readable: false, writable: true, text: true },
+      { mode: 'r+', readable: true, writable: true, text: true },
+      { mode: '+r', readable: true, writable: true, text: true },
+      { mode: 'w+', readable: true, writable: true, text: true },
+      { mode: '+w', readable: true, writable: true, text: true },
+      { mode: 'a+', readable: true, writable: true, text: true },
+      { mode: '+a', readable: true, writable: true, text: true },
+      { mode: 'x+', readable: true, writable: true, text: true },
+      { mode: '+x', readable: true, writable: true, text: true },
+
+      { mode: 'rb', readable: true, writable: false, text: false },
+      { mode: 'rb+', readable: true, writable: true, text: false },
+      { mode: 'br', readable: true, writable: false, text: false },
+      { mode: 'br+', readable: true, writable: true, text: false },
+      { mode: 'r+b', readable: true, writable: true, text: false },
+      { mode: 'b+r', readable: true, writable: true, text: false },
+      { mode: '+br', readable: true, writable: true, text: false },
+      { mode: '+rb', readable: true, writable: true, text: false },  
+      
+      { mode: 'rt', readable: true, writable: false, text: true },
+      { mode: 'rt+', readable: true, writable: true, text: true },
+      { mode: 'tr', readable: true, writable: false, text: true },
+      { mode: 'tr+', readable: true, writable: true, text: true },
+      { mode: 'r+t', readable: true, writable: true, text: true },
+      { mode: 't+r', readable: true, writable: true, text: true },
+      { mode: '+tr', readable: true, writable: true, text: true },
+      { mode: '+rt', readable: true, writable: true, text: true },  
+    ].forEach(({ mode, readable, writable }) => {
+      it(`accepts mode ${mode}`, () => {
+      // Arrange
+      const path = "/tmp/file";
+
+      // System Under Test
+      const stream = new TextIOWrapper(path, mode);
+
+      // Act & Assert
+      expect(stream.readable).toEqual(readable);
+      expect(stream.writable).toEqual(writable);
+      expect(stream.mode).toEqual(mode);
+      });
+    });
   });
+
 });
+
+
+const first = (set) => [... set].shift()
+const intersect = (s1, s2) => new Set([...s1].filter(i => s2.has(i)));
+const union = (...sets) => sets.reduce((s, acc) => new Set([...s, ...acc]))
+const equal = (s1, s2) => (s1.size === s2.size) && [...s1].every( value => s2.has(value));
+
+class TextIOWrapper {
+  constructor(path, mode, fs = localStorage) {
+    const rwax = new Set("rwax");
+    const u = new Set("+");
+    const tb = new Set("tb");
+    const allowed = new Set([...rwax, ...u, ...tb]);
+    const _mode = new Set(mode);
+
+    if(mode.length < 1 || mode.length > 3 || _mode.size != mode.length) { 
+      // too long, too short or duplicates
+      throw new ValueError(`Invalid mode: '${mode}'`);
+    }
+
+    if (!equal(intersect(allowed, _mode), _mode)) {
+      // dislallowed chars
+      throw new ValueError(`Invalid mode: '${mode}'`);
+    }
+
+    if(intersect(rwax, _mode).size > 1) {
+      throw new ValueError("Must have exactly one of create/read/write/append mode");
+    }
+
+    if(intersect(rwax, _mode).size === 0) {
+      throw new ValueError("Must have exactly one of create/read/write/append mode and at most one plus");
+    }
+
+    if(intersect(tb, _mode).size > 1) {
+      throw new ValueError("can't have text and binary mode at once");
+    }
+
+    
+    const _u = bool(first(intersect(u, _mode)));
+    const _rwax = first(intersect(rwax, _mode));
+    const _tb = first(intersect(tb, _mode));
+
+    this.path = path;
+    this.mode = mode;
+    this.readable = _rwax === "r" || _u;
+    this.writable = _rwax !== "r" || _u;
+    this.text = _tb == "t" ? true : false;
+    this._fs = fs;
+  }
+}

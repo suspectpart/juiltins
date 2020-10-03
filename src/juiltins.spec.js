@@ -1231,7 +1231,7 @@ describe('juiltins', () => {
     });
   });
 
-  describe('TextIOWrapper', () => {
+  describe('open()', () => {
     beforeEach(() => localStorage.clear());
     afterEach(() => localStorage.clear());
 
@@ -1280,8 +1280,56 @@ describe('juiltins', () => {
       expect(stream.mode).toEqual(mode);
       });
     });
-  });
 
+    [
+      '',
+      'p',
+      'rr',
+      'www',
+      'wwww',
+      'hallo'
+    ].forEach((mode) => {
+      it(`rejects mode ${mode}`, () => {
+        expect(() => new TextIOWrapper("/tmp", mode)).toThrow(new ValueError(`Invalid mode: '${mode}'`));
+      });
+    });
+
+    it('rejects binary and text mode at the same time', () => {
+      expect(() => new TextIOWrapper("path", "rtb")).toThrow(new ValueError('can\'t have text and binary mode at once'));
+    });
+
+    // TODO: make this loop
+    it('rejects setting multiple read/write/append/create', () => {
+      // Arrange
+      const expected = new ValueError("Must have exactly one of create/read/write/append mode");
+      
+      // Assert
+      expect(() => new TextIOWrapper("path", "rax")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "axr")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "xar")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "xaw")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "wax")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "rwt")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "wbr")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "rwx")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "+aw")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "xa+")).toThrow(expected);
+    });
+
+    it('rejects setting no read/write/append/create', () => {
+      // Arrange
+      const expected = new ValueError("Must have exactly one of create/read/write/append mode and at most one plus");
+      
+      // Assert
+      expect(() => new TextIOWrapper("path", "+")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "b")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "t")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "t+")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "+t")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "+b")).toThrow(expected);
+      expect(() => new TextIOWrapper("path", "+b")).toThrow(expected);
+    });
+  });
 });
 
 
@@ -1292,20 +1340,22 @@ const equal = (s1, s2) => (s1.size === s2.size) && [...s1].every( value => s2.ha
 
 class TextIOWrapper {
   constructor(path, mode, fs = localStorage) {
+    const _mode = new Set(mode);
     const rwax = new Set("rwax");
     const u = new Set("+");
     const tb = new Set("tb");
-    const allowed = new Set([...rwax, ...u, ...tb]);
-    const _mode = new Set(mode);
 
     if(mode.length < 1 || mode.length > 3 || _mode.size != mode.length) { 
-      // too long, too short or duplicates
       throw new ValueError(`Invalid mode: '${mode}'`);
     }
 
-    if (!equal(intersect(allowed, _mode), _mode)) {
-      // dislallowed chars
+    // disallowed chars
+    if (!equal(intersect(union(rwax, u, tb), _mode), _mode)) {
       throw new ValueError(`Invalid mode: '${mode}'`);
+    }
+
+    if(intersect(tb, _mode).size > 1) {
+      throw new ValueError("can't have text and binary mode at once");
     }
 
     if(intersect(rwax, _mode).size > 1) {
@@ -1315,11 +1365,6 @@ class TextIOWrapper {
     if(intersect(rwax, _mode).size === 0) {
       throw new ValueError("Must have exactly one of create/read/write/append mode and at most one plus");
     }
-
-    if(intersect(tb, _mode).size > 1) {
-      throw new ValueError("can't have text and binary mode at once");
-    }
-
     
     const _u = bool(first(intersect(u, _mode)));
     const _rwax = first(intersect(rwax, _mode));

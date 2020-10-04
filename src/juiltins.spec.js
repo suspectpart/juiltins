@@ -8,6 +8,7 @@ const {
   chr,
   divmod,
   enumerate,
+  filter,
   frozenset,
   hex,
   input,
@@ -1395,6 +1396,31 @@ describe('juiltins', () => {
       expect(() => stream.write(100)).toThrow(new TypeError("write() argument must be string, not 'number'"));
       expect(() => stream.write({})).toThrow(new TypeError("write() argument must be string, not 'object'"));
       expect(() => stream.write(function(){})).toThrow(new TypeError("write() argument must be string, not 'function'"));
+    });
+  });
+
+  describe('filter', () => {
+    it('filters an iterable', () => {
+      // Arrange
+      const even = (n) => !(n % 2);
+      const iterable = [1, 2, 3, 4, 5, 6, 7, 8];
+
+      // Act
+      const evens = filter(even, iterable);
+      
+      // Assert
+      expect([...evens]).toEqual([2, 4, 6, 8]);
+    });
+
+    it('interprets empty predicate as no filter', () => {
+      // Arrange
+      const iterable = [1, 2, 3, 4, 5, 6, 7, 8];
+
+      // Act
+      const unfiltered = filter(null, iterable);
+      
+      // Assert
+      expect([...unfiltered]).toEqual(iterable);
     });
   });
 });

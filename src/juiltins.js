@@ -528,8 +528,18 @@ function open_(path, mode) {
   return new TextIOWrapper(path, mode);
 }
 
+function* filter(predicate, iterable) {
+  predicate = predicate || (() => true);
+
+  for (const item of iterable) {
+    if(predicate(item)) {
+      yield item;
+    }
+  }
+}
+
 module.exports = { 
-  abs, all, any, bin, bool, callable, chr, dir, divmod, enumerate, 
+  abs, all, any, bin, bool, callable, chr, dir, divmod, enumerate, filter,
   frozenset, hex, input, int, iter, issubclass, isinstance, 
   len, list, oct, open_, ord, range, sum, type, zip, TextIOWrapper,
   ValueError, ZeroDivisionError, UnsupportedOperation, OverflowError, FrozenSet, __iter__

@@ -27,6 +27,7 @@ const {
   TextIOWrapper,
   OverflowError,
   ZeroDivisionError,
+  UnsupportedOperation,
   ValueError,
   __iter__
 } = require("./juiltins");
@@ -1341,6 +1342,59 @@ describe('juiltins', () => {
 
     it('defaults to text mode', () => {
       expect(open_("/tmp/file", "r").text).toEqual(true);
+    });
+
+    [
+      "w",
+      "a",
+      "x"
+    ].forEach(mode => {
+      it(`rejects reading a write-only stream (mode '${mode}')`, () => {
+        // Arrange
+        const path = "/tmp/test";
+        localStorage.setItem("/tmp/test", "test");
+  
+        const stream = open_(path, mode);
+  
+        // Act + Assert
+        expect(() => stream.read()).toThrow(new UnsupportedOperation("not readable"));
+      });
+    })
+    
+    it("rejects writing a read-only stream (mode 'r')", () => {
+      // Arrange
+      const path = "/tmp/test";
+      localStorage.setItem("/tmp/test", "test");
+
+      const stream = open_(path, "r");
+
+      // Act + Assert
+      expect(() => stream.write()).toThrow(new UnsupportedOperation("not writable"));
+    });
+
+    it("rejects writing nothing", () => {
+      // Arrange
+      const path = "/tmp/test";
+      localStorage.setItem("/tmp/test", "test");
+
+      const stream = open_(path, "w");
+
+      // Act + Assert
+      expect(() => stream.write()).toThrow(new TypeError("write() takes exactly one argument (0 given)"));
+    });
+
+    it("rejects writing garbage", () => {
+      // Arrange
+      const path = "/tmp/test";
+      localStorage.setItem("/tmp/test", "test");
+
+      const stream = open_(path, "w");
+
+      // Act + Assert
+      expect(() => stream.write(null)).toThrow(new TypeError("write() argument must be string, not 'object'"));
+      expect(() => stream.write(100)).toThrow(new TypeError("write() argument must be string, not 'number'"));
+      expect(() => stream.write({})).toThrow(new TypeError("write() argument must be string, not 'object'"));
+      expect(() => stream.write(function(){})).toThrow(new TypeError("write() argument must be string, not 'function'"));
     });
   });
 });

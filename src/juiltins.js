@@ -82,6 +82,13 @@ class NotImplementedException extends Error {
   }
 }
 
+class UnsupportedOperation extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "io.UnsupportedOperation";
+  }
+}
+
 // TODO: return the magnitude if n is a complex number
 function abs(n) {
   return Math.abs(n);
@@ -491,19 +498,29 @@ class TextIOWrapper {
   }
 
   write(string) {
+    if (!this.writable) {
+      throw new UnsupportedOperation('not writable');
+    }
+
+    if (string === undefined) {
+      throw new TypeError("write() takes exactly one argument (0 given)");
+    }
+
+    if (typeof string !== 'string') {
+      throw new TypeError(`write() argument must be string, not '${typeof string}'`);
+    }
+
     this._fs.setItem(this.path, string);
 
     return string.length;
   }
 
   read() {
-    const text = this._fs.getItem(this.path);
-
-    if (text === null) {
-      throw new Error("File not there");
+    if (!this.readable) {
+      throw new UnsupportedOperation('not readable');
     }
 
-    return text;
+    return this._fs.getItem(this.path);
   }
 } 
 
@@ -515,5 +532,5 @@ module.exports = {
   abs, all, any, bin, bool, callable, chr, dir, divmod, enumerate, 
   frozenset, hex, input, int, iter, issubclass, isinstance, 
   len, list, oct, open_, ord, range, sum, type, zip, TextIOWrapper,
-  ValueError, ZeroDivisionError, OverflowError, FrozenSet, __iter__
+  ValueError, ZeroDivisionError, UnsupportedOperation, OverflowError, FrozenSet, __iter__
 };

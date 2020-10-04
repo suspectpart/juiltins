@@ -538,9 +538,13 @@ function* filter(predicate, iterable) {
   }
 }
 
+function print(...messages) {
+  console.log(...messages);
+}
+
 module.exports = { 
   abs, all, any, bin, bool, callable, chr, dir, divmod, enumerate, filter,
   frozenset, hex, input, int, iter, issubclass, isinstance, 
-  len, list, oct, open_, ord, range, sum, type, zip, TextIOWrapper,
+  len, list, oct, open_, ord, print, range, sum, type, zip, TextIOWrapper,
   ValueError, ZeroDivisionError, UnsupportedOperation, OverflowError, FrozenSet, __iter__
 };

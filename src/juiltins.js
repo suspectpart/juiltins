@@ -285,6 +285,8 @@ function* zip(...iterables) {
 
 /**
  * is that in any way sane? :-) 
+ * 
+ * Only works with classes right now.
  */
 function type(...args) {
   if(args.length === 3) return type_(...args);
@@ -297,33 +299,12 @@ function type(...args) {
     return obj;
   }
 
-  /**
-   * Caution: This doesn't work well with old-school inheritance!
-   * 
-   * function Animal() {}
-   * function Dog() {}
-   * Dog.prototype = Object.create(Animal.prototype)
-   * 
-   * new Dog().constructor // => will be [Function: Animal], NOT [Function: Dog]!
-   * 
-   * If going this path, make sure to fix the constructor prop on the prototype:
-   * 
-   * Dog.prototype.constructor = Dog
-   * new Dog().constructor // => Fixed, will be [Function: Dog] again.
-   */
   return obj.constructor;
 }
 
 function type_(name, base, props) {
-  const Type = {[name]: function() {}}[name];
-
-  if (base && typeof base === 'object') {
-    Type.prototype = base;
-
-    // avoid shadowing the original constructor
-    Type.prototype.constructor = Type;
-  }
-  
+  const Type = class extends base {}; 
+  Object.defineProperty(Type.prototype.constructor, "name", { value: name });
   Object.assign(Type.prototype, props);
 
   return Type;

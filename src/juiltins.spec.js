@@ -410,24 +410,76 @@ describe('juiltins', () => {
       expect(type(null)).toEqual(null);
     });
 
-    it('creates new types', () => {
+    it('creates new types based on a class', () => {
       class Person {
         constructor(name) {
           this.name = name;
         }
+
+        sayHi() {
+
+        }
       }
 
       const name = 'Employee';
-      const base = new Person();
+      const base = Person;
       const props = {prop: 100};
 
       // Act
       const Employee = type(name, base, props);
-      const employee = new Employee();
+      const employee = new Employee("horst");
 
       // Assert
-      expect(employee.__proto__).toBe(base);
+      // properties have been assigned
       expect(employee.prop).toEqual(100);
+
+      // super constructor called
+      expect(employee.name).toEqual("horst");
+
+      // prototype inherited
+      expect(employee.sayHi).toEqual(Person.prototype.sayHi);
+
+      // did not change Person's prototype
+      expect(Person.prototype.prop).toBe(undefined);
+
+      // proper prototype chain
+      expect(employee instanceof Person).toEqual(true);
+      expect(employee instanceof Employee).toEqual(true);
+      expect(employee.constructor).toBe(Employee);
+      expect(employee.constructor.name).toBe("Employee");
+    });
+
+    it('creates new types based on a constructor function', () => {
+      function Person(name) {
+          this.name = name;
+      }
+
+      Person.prototype.sayHi = () => {};
+
+      const name = 'Employee';
+      const base = Person;
+      const props = {prop: 100};
+
+      // Act
+      const Employee = type(name, base, props);
+      const employee = new Employee("horst");
+
+      // Assert
+      // properties have been assigned
+      expect(employee.prop).toEqual(100);
+
+      // super constructor called
+      expect(employee.name).toEqual("horst");
+
+      // prototype inherited
+      expect(employee.sayHi).toEqual(Person.prototype.sayHi);
+
+      // did not change Person's prototype
+      expect(Person.prototype.prop).toBe(undefined);
+
+      // proper prototype chain
+      expect(employee instanceof Person).toEqual(true);
+      expect(employee instanceof Employee).toEqual(true);
       expect(employee.constructor).toBe(Employee);
       expect(employee.constructor.name).toBe("Employee");
     });

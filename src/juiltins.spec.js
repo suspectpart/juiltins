@@ -1475,4 +1475,72 @@ describe('juiltins', () => {
       expect([...unfiltered]).toEqual(iterable);
     });
   });
+
+  describe('bytes', () => {
+    function bytes(string) {
+      var buf = new ArrayBuffer(string.length * 2);
+      var bufView = new Uint16Array(buf);
+
+      for (var i = 0, strLen = string.length; i < strLen; i++) {
+          bufView[i] = string.charCodeAt(i);
+      }
+
+      return [...new Uint8Array(buf)];
+    }
+
+    it('reads from empty string', () => {
+      expect(bytes("")).toEqual([]);
+    });
+
+    it('reads one BMP char', () => {
+      expect(bytes("€")).toEqual([172, 32]);
+    });
+
+    it('reads one non-BMP char', () => {
+      expect(bytes("𝄞")).toEqual([52, 216, 30, 221]);
+      expect(bytes("𤽜")).toEqual([83, 216, 92, 223]);
+    });
+
+    it('reads from string', () => {
+      // Arrange
+      const string = "中文 and abc";
+      const expected = [45, 78, 135, 101, 32, 0, 97, 0, 110, 0, 100, 0, 32, 0, 97, 0, 98, 0, 99, 0];
+
+      // Act
+      const actual = bytes(string);  
+
+      // Assert
+      expect(actual).toEqual(expected);
+    });
+  })
 });
+
+
+/**
+ * 
+ * for bytes()
+ * 
+ * function strEncodeUTF16(str) {
+    var buf = new ArrayBuffer(str.length * 2);
+    var bufView = new Uint16Array(buf);
+    for (var i = 0, strLen = str.length; i < strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return new Uint8Array(buf);
+}
+
+ function toString(bytes_) {
+      let string = "";
+      const view = new Uint8Array(bytes_);
+      const sixteen = new Uint16Array(view.buffer);
+
+      for(let i = 0; i < sixteen.length; i++) {
+        string += String.fromCodePoint(sixteen[i]);
+      }
+
+      return string;
+    }
+
+
+strEncodeUTF16("汉a")
+ */

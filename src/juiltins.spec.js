@@ -1477,40 +1477,78 @@ describe('juiltins', () => {
   });
 
   describe('bytes', () => {
-    function bytes(string) {
-      var buf = new ArrayBuffer(string.length * 2);
-      var bufView = new Uint16Array(buf);
+    function bytes(str) {
+      return new bytes_(str);
+    }
 
-      for (var i = 0, strLen = string.length; i < strLen; i++) {
-          bufView[i] = string.charCodeAt(i);
+    class bytes_ extends Uint8Array {
+      // TODO: Make this accept bytes
+      // TODO: Test decode
+      constructor(str) {
+        super(str.length * 2);
+
+        const view = new Uint16Array(this.buffer);
+
+        for (let i = 0; i < str.length; i++) {
+          view[i] = str.charCodeAt(i);
+        }
       }
 
-      return [...new Uint8Array(buf)];
+      decode() {
+        const view = new Uint16Array(this.buffer);
+        return Array.from(view).map(c => String.fromCodePoint(c)).join("");
+      }
+
+      get [Symbol.toStringTag]() {
+        return "bytes";
+      }
     }
 
     it('reads from empty string', () => {
-      expect(bytes("")).toEqual([]);
+      expect([...bytes("")]).toEqual([]);
     });
 
-    it('reads one BMP char', () => {
-      expect(bytes("€")).toEqual([172, 32]);
+    it('reads a simple ony-byte BMP char', () => {
+      expect([...bytes("a")]).toEqual([97, 0]);
     });
 
-    it('reads one non-BMP char', () => {
-      expect(bytes("𝄞")).toEqual([52, 216, 30, 221]);
-      expect(bytes("𤽜")).toEqual([83, 216, 92, 223]);
+    it('reads a 2-byte BMP char', () => {
+      expect([...bytes("€")]).toEqual([172, 32]);
     });
 
-    it('reads from string', () => {
+    it('reads a 4-byte non-BMP char', () => {
+      expect([...bytes("𝄞")]).toEqual([52, 216, 30, 221]);
+      expect([...bytes("𤽜")]).toEqual([83, 216, 92, 223]);
+    });
+
+    it('decodes a mixed string', () => {
       // Arrange
-      const string = "中文 and abc";
-      const expected = [45, 78, 135, 101, 32, 0, 97, 0, 110, 0, 100, 0, 32, 0, 97, 0, 98, 0, 99, 0];
+      const string = "中 文 𝄞 and abc";
+      const expected = [
+        45, 78, 32, 0, 135, 101, 32, 0, 52, 
+        216, 30, 221, 32, 0, 97, 0, 110, 0, 
+        100, 0, 32, 0, 97, 0, 98, 0, 99, 0];
 
       // Act
       const actual = bytes(string);  
 
       // Assert
-      expect(actual).toEqual(expected);
+      expect([...actual]).toEqual(expected);
+    });
+
+    it('reads a mixed string', () => {
+      // Arrange
+      const string = "中 文 𝄞 and abc";
+      const expected = [
+        45, 78, 32, 0, 135, 101, 32, 0, 52, 
+        216, 30, 221, 32, 0, 97, 0, 110, 0, 
+        100, 0, 32, 0, 97, 0, 98, 0, 99, 0];
+
+      // Act
+      const actual = bytes(string);  
+
+      // Assert
+      expect([...actual]).toEqual(expected);
     });
   })
 });
